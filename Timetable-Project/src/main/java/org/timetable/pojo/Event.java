@@ -5,6 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -25,4 +28,20 @@ public class Event {
     private String notes;
     @JacksonXmlProperty(isAttribute = true)
     private String type;
+
+    private List<Group> groupList = new ArrayList<>();
+    private List<Prof> profList = new ArrayList<>();
+    private EventType eventTypeObject;
+
+    public Event(String abbr, String actors, Integer duration, Integer frequency,
+                 String group, String name, String notes, String type) {
+        this.abbr = abbr;
+        this.actors = actors;
+        this.duration = duration;
+        this.frequency = frequency;
+        this.group = group;
+        this.name = name;
+        this.notes = notes;
+        this.type = type;
+    }
 }

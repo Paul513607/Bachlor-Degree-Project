@@ -27,4 +27,8 @@ public class Parser {
         File file = new File(this.fileToParsePath);
         this.timetable = xmlMapper.readValue(file, Timetable.class);
     }
+
+    public void setLinksForTimetable() {
+        this.timetable.setLinks();
+    }
 }

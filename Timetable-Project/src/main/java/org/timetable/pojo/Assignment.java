@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -32,4 +34,18 @@ public class Assignment {
     private String resources;
     @JacksonXmlProperty(isAttribute = true)
     private Integer week;
+
+    private Event eventObject;
+    private List<Resource> resourceList = new ArrayList<>();
+
+    public Assignment(Integer day, Integer start, Integer end, String event,
+                      String notes, String resources, Integer week) {
+        this.day = day;
+        this.start = start;
+        this.end = end;
+        this.event = event;
+        this.notes = notes;
+        this.resources = resources;
+        this.week = week;
+    }
 }

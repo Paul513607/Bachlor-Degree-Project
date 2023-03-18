@@ -6,5 +6,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class ClassRoomEdge {
+@AllArgsConstructor
+public class TimetableEdge {
+    private TimetableNode node1;
+    private TimetableNode node2;
 }

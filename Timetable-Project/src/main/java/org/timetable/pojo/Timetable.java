@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -56,4 +58,74 @@ public class Timetable {
     private Assignments assignments;
     @JacksonXmlElementWrapper(localName = "announcements")
     private Announcements announcements;
+
+    public List<Prof> getProfs() {
+        return profs.getProfs();
+    }
+
+    public List<Group> getGroups() {
+        return students.getGroups();
+    }
+
+    public List<Type> getResourceTypes() {
+        return resourceTypes.getTypes();
+    }
+
+    public List<Resource> getResources() {
+        return resources.getResources();
+    }
+
+    public List<EventType> getEventTypes() {
+        return eventTypes.getEventTypes();
+    }
+
+    public List<EventGroup> getEventGroups() {
+        return eventGroups.getEventGroups();
+    }
+
+    public List<Event> getEvents() {
+        return events.getEvents();
+    }
+
+    public List<Assignment> getAssignments() {
+        return assignments.getAssignments();
+    }
+
+    public List<Announcement> getAnnouncements() {
+        return announcements.getAnnouncements();
+    }
+
+    public void setLinks() {
+        for (Assignment assignment : assignments.getAssignments()) {
+            assignment.setEventObject(events.getEvents().stream()
+                    .filter(event -> event.getAbbr().equals(assignment.getEvent())).findFirst().orElse(null));
+            List<String> assignmentResources = List.of(assignment.getResources().split("\s*,\s*"));
+            for (String resource : assignmentResources) {
+                assignment.getResourceList().add(resources.getResources().stream()
+                        .filter(resource1 -> resource1.getAbbr().equals(resource)).findFirst().orElse(null));
+            }
+        }
+
+        for (Event event : events.getEvents()) {
+            List<String> eventActors = List.of(event.getActors().split("\s*,\s*"));
+            List<Group> tmpGroups = new ArrayList<>();
+            List<Prof> tmpProfs = new ArrayList<>();
+            for (String actor : eventActors) {
+                boolean isGroup = this.students.getGroups().stream()
+                        .anyMatch(group -> group.getAbbr().equals(actor));
+                if (isGroup) {
+                    tmpGroups.add(this.students.getGroups().stream()
+                            .filter(group -> group.getAbbr().equals(actor)).findFirst().orElse(null));
+                } else {
+                    tmpProfs.add(this.profs.getProfs().stream()
+                            .filter(prof -> prof.getAbbr().equals(actor)).findFirst().orElse(null));
+                }
+            }
+            event.setGroupList(tmpGroups);
+            event.setProfList(tmpProfs);
+
+            event.setEventTypeObject(eventTypes.getEventTypes().stream()
+                    .filter(eventType -> eventType.getAbbr().equals(event.getType())).findFirst().orElse(null));
+        }
+    }
 }

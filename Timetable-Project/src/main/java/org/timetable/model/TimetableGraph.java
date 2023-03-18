@@ -6,17 +6,25 @@ import lombok.NoArgsConstructor;
 import org.jgrapht.Graph;
 import org.jgrapht.GraphType;
 
-import java.util.Arrays;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ClassRoomsGraph<V extends ClassRoomNode, E extends ClassRoomEdge> implements Graph<V, E> {
-    private ClassRoomNode[] nodes;
-    private ClassRoomEdge[] edges;
+public class TimetableGraph<V extends TimetableNode, E extends TimetableEdge> implements Graph<V, E> {
+    public static final int NUMBER_OF_DAYS = 5;
+    public static final LocalTime START_TIME = LocalTime.of(8, 0);
+    public static final LocalTime END_TIME = LocalTime.of(20, 0);
+    public static final int GENERAL_DURATION = 2;
+
+    private List<TimetableNode> nodes = new ArrayList<>();
+    private List<TimetableEdge> edges = new ArrayList<>();
+    private List<TimetableColor> timetableColors = new ArrayList<>();
 
     @Override
     public Set<E> getAllEdges(V v, V v1) {
