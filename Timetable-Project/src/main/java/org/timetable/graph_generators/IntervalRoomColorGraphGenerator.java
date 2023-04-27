@@ -1,6 +1,6 @@
 package org.timetable.graph_generators;
 
-import org.timetable.algorithm.AlgorithmConstants;
+import org.timetable.algorithm.wraps.AlgorithmConstants;
 import org.timetable.model.*;
 import org.timetable.pojo.*;
 

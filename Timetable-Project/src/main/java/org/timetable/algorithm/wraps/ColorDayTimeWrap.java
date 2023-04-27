@@ -1,4 +1,4 @@
-package org.timetable.algorithm;
+package org.timetable.algorithm.wraps;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
