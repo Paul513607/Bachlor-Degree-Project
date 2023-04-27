@@ -10,7 +10,10 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -108,8 +111,8 @@ public class Timetable {
 
         for (Event event : events.getEvents()) {
             List<String> eventActors = List.of(event.getActors().split("\s*,\s*"));
-            List<Group> tmpGroups = new ArrayList<>();
-            List<Prof> tmpProfs = new ArrayList<>();
+            Set<Group> tmpGroups = new HashSet<>();
+            Set<Prof> tmpProfs = new HashSet<>();
             for (String actor : eventActors) {
                 boolean isGroup = this.students.getGroups().stream()
                         .anyMatch(group -> group.getAbbr().equals(actor));
@@ -121,6 +124,33 @@ public class Timetable {
                             .filter(prof -> prof.getAbbr().equals(actor)).findFirst().orElse(null));
                 }
             }
+
+            boolean foundChildGroups;
+            Set<Group> parentGroupSet = new HashSet<>(tmpGroups);
+            do {
+                foundChildGroups = false;
+                Set<String> parentGroupAbbrSet = parentGroupSet.stream()
+                        .map(Group::getAbbr)
+                        .collect(Collectors.toSet());
+                Set<Group> childGroups = new HashSet<>();
+                for (Group group : getGroups()) {
+                    if (parentGroupAbbrSet.contains(group.getParent())) {
+                        childGroups.add(group);
+                        foundChildGroups = true;
+                    }
+                }
+                tmpGroups.addAll(childGroups);
+                if (!childGroups.isEmpty()) {
+                    parentGroupSet = new HashSet<>(childGroups);
+                }
+            } while (foundChildGroups);
+
+            if (parentGroupSet.isEmpty()) {
+                event.setGroupListNoParents(tmpGroups);
+            } else {
+                event.setGroupListNoParents(parentGroupSet);
+            }
+
             event.setGroupList(tmpGroups);
             event.setProfList(tmpProfs);
 

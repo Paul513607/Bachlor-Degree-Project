@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 @NoArgsConstructor
@@ -15,4 +17,10 @@ public class Students {
     @JacksonXmlElementWrapper(localName = "students", useWrapping = false)
     @JacksonXmlProperty(localName = "group")
     private List<Group> groups;
+
+    public Set<String> getGroupsAbbr() {
+        return groups.stream()
+                .map(Group::getAbbr)
+                .collect(Collectors.toSet());
+    }
 }

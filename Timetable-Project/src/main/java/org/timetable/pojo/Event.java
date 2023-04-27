@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -31,6 +32,7 @@ public class Event {
 
     private List<Group> groupList = new ArrayList<>();
     private List<Prof> profList = new ArrayList<>();
+    private List<Group> groupListNoParents = new ArrayList<>();
     private EventType eventTypeObject;
 
     public Event(String abbr, String actors, Integer duration, Integer frequency,
@@ -43,5 +45,18 @@ public class Event {
         this.name = name;
         this.notes = notes;
         this.type = type;
+    }
+
+
+    public void setGroupList(Set<Group> groupSet) {
+        groupList = new ArrayList<>(groupSet);
+    }
+
+    public void setProfList(Set<Prof> profSet) {
+        profList = new ArrayList<>(profSet);
+    }
+
+    public void setGroupListNoParents(Set<Group> groupSet) {
+        groupListNoParents = new ArrayList<>(groupSet);
     }
 }
