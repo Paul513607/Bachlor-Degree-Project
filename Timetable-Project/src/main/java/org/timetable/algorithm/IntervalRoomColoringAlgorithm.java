@@ -46,9 +46,9 @@ public class IntervalRoomColoringAlgorithm extends TimetableColoringAlgorithm {
     public void colorGraph() {
         sortTimetableNodesByEdgeCount();
 
-        if (algorithmOption == 2) {
+        if (algorithmOption == 1) {
             greedyColoringMethod();
-        } else if (algorithmOption == 3) {
+        } else if (algorithmOption == 2) {
             dsaturColoringMethod();
         }
     }
@@ -180,7 +180,7 @@ public class IntervalRoomColoringAlgorithm extends TimetableColoringAlgorithm {
         return totalMemberCount == 0;
     }
 
-    public void sortNodeColorMapByActorsAndDayTimeAndPrint() {
+    public void sortNodeColorMapByActorsAndDayTime() {
         List<Map.Entry<TimetableNode, ColorDayTimeWrap>> list = new ArrayList<>(nodeColorMap.entrySet());
         list.sort((o1, o2) -> {
             String o1FirstGroup = o1.getKey().getEvent().getGroupList().get(0).getAbbr();
@@ -199,9 +199,6 @@ public class IntervalRoomColoringAlgorithm extends TimetableColoringAlgorithm {
             int o2Time = o2.getValue().getTime();
             return Integer.compare(o1Time, o2Time);
         });
-        for (Map.Entry<TimetableNode, ColorDayTimeWrap> entry : list) {
-            System.out.println(entry.getKey().getEvent() + "\n" + entry.getValue() + "\n");
-        }
     }
 
     public void printNodeColorMap() {

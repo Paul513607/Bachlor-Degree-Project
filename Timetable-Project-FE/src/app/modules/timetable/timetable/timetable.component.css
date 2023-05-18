@@ -1,0 +1,91 @@
+.main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: row;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.timetable {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* make table bigger, draw lines between contents, make it look like a timetable */
+.timetable table {
+    border-collapse: collapse;
+    border: 1px solid black;
+    width: 80%;
+}
+
+.timetable table td {
+    border: 1px solid black;
+    padding: 5px;
+    width: 3em;
+    height: 6em;
+}
+
+.timetable table th {
+    border: 1px solid black;
+    padding: 5px;
+    width: 3em;
+    height: 6em;
+}
+
+@media screen and (max-width: 600px) {
+    .timetable table {
+        width: 100%;
+    }
+
+    .timetable table td {
+        width: 2em;
+        height: 4em;
+    }
+
+    .timetable table th {
+        width: 2em;
+        height: 4em;
+    }
+}
+
+@media screen and (max-width: 400px) {
+    .timetable table {
+        width: 100%;
+    }
+
+    .timetable table td {
+        width: 1.5em;
+        height: 3em;
+    }
+
+    .timetable table th {
+        width: 1.5em;
+        height: 3em;
+    }
+}
+
+@media screen and (max-width: 300px) {
+    .timetable table {
+        width: 100%;
+    }
+
+    .timetable table td {
+        width: 1em;
+        height: 2em;
+    }
+
+    .timetable table th {
+        width: 1em;
+        height: 2em;
+    }
+}
+
+
+

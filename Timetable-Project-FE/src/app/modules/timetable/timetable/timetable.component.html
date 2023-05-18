@@ -1,0 +1,29 @@
+<div class="main">
+  <div class="sidebar">
+    <app-sidebar 
+      (onChageSelectedAlgorithm)="onChageSelectedAlgorithm($event)"
+      (onChangeSelectedStudentGroup)="onChangeStudentGroup($event)"
+      (onClickGenerateTimetable)="onGenerateTimetable()"
+    ></app-sidebar>
+  </div>
+  <div class="timetable">
+    <table>
+      <thead>
+          <th></th> <!-- empty cell -->
+          <ng-container *ngFor="let classTime of classTimes">
+              <th>{{ classTime }}</th>
+          </ng-container>
+      </thead>
+      <tbody>
+          <ng-container *ngFor="let day of days">
+              <tr>
+                <th>{{ day }}</th>
+                <ng-container *ngFor="let classTime of classTimes">
+                  <td> data </td>
+                </ng-container>
+              </tr>
+            </ng-container>
+      </tbody>
+    </table>
+  </div>
+</div>

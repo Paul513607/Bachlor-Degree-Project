@@ -1,0 +1,37 @@
+<div class="sidebar">
+    <form>
+        <div class="form-field">
+            <mat-form-field>
+                <mat-label>Select Algorithm Option</mat-label>
+                <mat-select 
+                [(ngModel)]="selectedAlgorithmOption" 
+                name="selectedAlgorithmOption"
+                class="form-select"
+                (selectionChange)="onChangeAlgorithmOption(selectedAlgorithmOption)">
+                    <mat-option *ngFor="let algorithmOption of algorithmOptionList" [value]="algorithmOption.option">
+                        {{ algorithmOption.label }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="form-field">
+            <button mat-raised-button 
+            class="generate-btn" 
+            (click)="onGenerateTimetable()">GENERATE</button>
+        </div>
+        <div class="form-field">
+            <mat-form-field>
+                <mat-label>Select Student Group</mat-label>
+                <mat-select 
+                [(ngModel)]="selectedStudentGroup" 
+                name="selectedStudentGroup" 
+                class="form-select"
+                (selectionChange)="onChangeStudentGroup(selectedStudentGroup)">
+                    <mat-option *ngFor="let studentGroup of studentGroupList" [value]="studentGroup">
+                        {{ studentGroup }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+    </form>
+</div>

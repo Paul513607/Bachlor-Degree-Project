@@ -178,7 +178,7 @@ public class RoomOnlyColoringAlgorithm extends TimetableColoringAlgorithm {
         return Optional.empty();
     }
 
-    public void sortNodeColorMapByActorsAndDayTimeAndPrint() {
+    public void sortNodeColorMapByActorsAndDayTime() {
         List<Map.Entry<TimetableNode, ColorDayTimeWrap>> list = new ArrayList<>(nodeColorMap.entrySet());
         list.sort((o1, o2) -> {
             String o1FirstGroup = o1.getKey().getEvent().getGroupList().get(0).getAbbr();
@@ -197,9 +197,6 @@ public class RoomOnlyColoringAlgorithm extends TimetableColoringAlgorithm {
             int o2Time = o2.getValue().getTime();
             return Integer.compare(o1Time, o2Time);
         });
-        for (Map.Entry<TimetableNode, ColorDayTimeWrap> entry : list) {
-            System.out.println(entry.getKey().getEvent() + "\n" + entry.getValue() + "\n");
-        }
     }
 
     public void printNodeColorMap() {

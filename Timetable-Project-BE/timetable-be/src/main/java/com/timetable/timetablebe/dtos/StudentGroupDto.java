@@ -1,0 +1,16 @@
+package com.timetable.timetablebe.dtos;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class StudentGroupDto {
+    private String abbr;
+    private Integer memberCount;
+    private String name;
+    private String notes;
+    private String parent;
+}
