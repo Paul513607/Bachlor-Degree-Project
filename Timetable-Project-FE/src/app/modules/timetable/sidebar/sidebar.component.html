@@ -8,7 +8,10 @@
                 name="selectedAlgorithmOption"
                 class="form-select"
                 (selectionChange)="onChangeAlgorithmOption(selectedAlgorithmOption)">
-                    <mat-option *ngFor="let algorithmOption of algorithmOptionList" [value]="algorithmOption.option">
+                    <mat-option
+                    class="mat-option"
+                    *ngFor="let algorithmOption of algorithmOptionList" 
+                    [value]="algorithmOption">
                         {{ algorithmOption.label }}
                     </mat-option>
                 </mat-select>
@@ -20,6 +23,16 @@
             (click)="onGenerateTimetable()">GENERATE</button>
         </div>
         <div class="form-field">
+            <mat-radio-group 
+            class="radio-btn-group"
+            [(ngModel)]="selectedQueryOption"
+            name="selectedQueryOption">
+                <mat-radio-button value="optionStudent" checked>Student Group</mat-radio-button>
+                <mat-radio-button value="optionProf">Professor</mat-radio-button>
+                <mat-radio-button value="optionRoom">Room</mat-radio-button>
+            </mat-radio-group>
+        </div>
+        <div class="form-field" *ngIf="selectedQueryOption === 'optionStudent'">
             <mat-form-field>
                 <mat-label>Select Student Group</mat-label>
                 <mat-select 
@@ -27,8 +40,45 @@
                 name="selectedStudentGroup" 
                 class="form-select"
                 (selectionChange)="onChangeStudentGroup(selectedStudentGroup)">
-                    <mat-option *ngFor="let abbr of studentGroupAbbrsList" [value]="abbr">
-                        {{ abbr }}
+                    <mat-option 
+                    class="mat-option"
+                    *ngFor="let studentGroupDisplay of studentGroupDisplayList" 
+                    [value]="studentGroupDisplay">
+                        {{ studentGroupDisplay.label }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="form-field" *ngIf="selectedQueryOption === 'optionProf'">
+            <mat-form-field>
+                <mat-label>Select Professor</mat-label>
+                <mat-select 
+                [(ngModel)]="selectedProfessor" 
+                name="selectedProfessor" 
+                class="form-select"
+                (selectionChange)="onChangeProfessor(selectedProfessor)">
+                    <mat-option 
+                    class="mat-option"
+                    *ngFor="let professorDisplay of professorDisplayList" 
+                    [value]="professorDisplay">
+                        {{ professorDisplay.label }}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div class="form-field" *ngIf="selectedQueryOption === 'optionRoom'">
+            <mat-form-field>
+                <mat-label>Select Room</mat-label>
+                <mat-select 
+                [(ngModel)]="selectedRoom" 
+                name="selectedRoom" 
+                class="form-select"
+                (selectionChange)="onChangeRoom(selectedRoom)">
+                    <mat-option 
+                    class="mat-option"
+                    *ngFor="let roomDisplay of roomDisplayList" 
+                    [value]="roomDisplay">
+                        {{ roomDisplay.label }}
                     </mat-option>
                 </mat-select>
             </mat-form-field>

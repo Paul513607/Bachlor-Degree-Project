@@ -35,6 +35,10 @@ export class TimetableComponent implements OnInit, OnDestroy {
   public selectedAlgorithmOption: string = '';
   @Input()
   public selectedStudentGroup: string = '';
+  @Input()
+  public selectedProfessor: string = '';
+  @Input()
+  public selectedRoom: string = '';
 
   public dayToEventsMap$: Observable<Map<string, AssignedTimetableEvent[]>> = new Observable<Map<string, AssignedTimetableEvent[]>>();
   public dayToEventsMap: Map<string, AssignedTimetableEvent[]> = new Map<string, AssignedTimetableEvent[]>();
@@ -65,19 +69,33 @@ export class TimetableComponent implements OnInit, OnDestroy {
   public onChangeStudentGroup(studentGroup: string): void {
     this.selectedStudentGroup = studentGroup;
 
-    if (this.selectedAlgorithmOption !== '') {
-      this.getAssignedEventsByStudentGroup();
-    }
     if (this.selectedStudentGroup !== '') {
       this.getAssignedEventsByStudentGroup();
     }
-    console.log(this.selectedStudentGroup);
+  }
+
+  public onChangeProfessor(professor: string): void {
+    this.selectedProfessor = professor;
+
+    if (this.selectedProfessor !== '') {
+      this.getAssignedEventsByProfessor();
+    }
+  }
+
+  public onChangeRoom(room: string): void {
+    this.selectedRoom = room;
+
+    if (this.selectedRoom !== '') {
+      this.getAssignedEventsByRoom();
+    }
   }
 
   public onGenerateTimetable(): void {
+    console.log("Generating timetable...");
     if (this.selectedAlgorithmOption !== '') {
       this.getAssignedEventsByAlgorithmOption();
     }
+    console.log("Done generating");
   }
 
   public getAssignedEventsByAlgorithmOption(): void {
@@ -92,13 +110,22 @@ export class TimetableComponent implements OnInit, OnDestroy {
     });
   }
 
-  public getAssignedEventsByStudentGroup(): void {
-    if (this.selectedStudentGroup === '') {
-      return;
-    }
-
+  private getAssignedEventsByStudentGroup(): void {
     this.assignedEvents$ = this.timetableService.getAllAssignedEventsWithStudentGroup(this.selectedStudentGroup);
+    this.placeAssignedEventsOnTimetable(this.assignedEvents);
+  }
 
+  private getAssignedEventsByProfessor(): void {
+    this.assignedEvents$ = this.timetableService.getAllAssignedEventsWithProfessor(this.selectedProfessor);
+    this.placeAssignedEventsOnTimetable(this.assignedEvents);
+  }
+
+  private getAssignedEventsByRoom(): void {
+    this.assignedEvents$ = this.timetableService.getAllAssignedEventsWithRoom(this.selectedRoom);
+    this.placeAssignedEventsOnTimetable(this.assignedEvents);
+  }
+
+  private placeAssignedEventsOnTimetable(assignedEvents: AssignedTimetableEvent[]): void {
     this.assignedEvents$.subscribe((assignedEvents: AssignedTimetableEvent[]) => {
       this.assignedEvents = assignedEvents;
       this.dayToEventsMap$ = this.addEventsToMap(this.assignedEvents);

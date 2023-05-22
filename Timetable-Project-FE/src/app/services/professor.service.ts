@@ -11,7 +11,7 @@ export class ProfessorService {
 
   constructor(private readonly _http: HttpClient) { }
 
-  getAllProfessors(): Observable<Professor[]> {
+  public getAllProfessors(): Observable<Professor[]> {
     let url: string = `${environment.BASE_URL}:${environment.PORT}/api/professors`;
     return this._http.get(url)
     .pipe(

@@ -134,17 +134,21 @@ public class AssignedEventService {
         return mapEntityListToDtoList(assignedEvents);
     }
 
+    private void regenerateTimetable() {
+        System.out.println("Generating timetable");
+        Map<TimetableNode, ColorDayTimeWrap> timetable =
+                roomOnlyColoring(ApplicationStartup.XML_FILEPATH);
+        List<AssignedEventEntity> assignedEvents = mapAlgorithmResultsToEntities(timetable);
+
+        cachedAlgorithmOption = DEFAULT_ALGORITHM_OPTION;
+        resetDatabase(assignedEvents);
+    }
+
     public List<AssignedEventDto> getAssignedEventsByStudentGroup(String abbr) {
         List<AssignedEventEntity> assignedEvents = assignedEventRepo.findAllByStudentGroupAbbr(abbr);
         // if the list is empty, we need to generate
         if (assignedEvents.isEmpty()) {
-            System.out.println("Generating timetable  " + abbr);
-            Map<TimetableNode, ColorDayTimeWrap> timetable =
-                    roomOnlyColoring(ApplicationStartup.XML_FILEPATH);
-            assignedEvents = mapAlgorithmResultsToEntities(timetable);
-
-            cachedAlgorithmOption = DEFAULT_ALGORITHM_OPTION;
-            resetDatabase(assignedEvents);
+            regenerateTimetable();
         }
         assignedEvents = assignedEventRepo.findAllByStudentGroupAbbr(abbr);
 
@@ -155,14 +159,19 @@ public class AssignedEventService {
         List<AssignedEventEntity> assignedEvents = assignedEventRepo.findAllByProfAbbr(abbr);
         // if the list is empty, we need to generate
         if (assignedEvents.isEmpty()) {
-            Map<TimetableNode, ColorDayTimeWrap> timetable; timetable =
-                    roomOnlyColoring(ApplicationStartup.XML_FILEPATH);
-            assignedEvents = mapAlgorithmResultsToEntities(timetable);
-
-            cachedAlgorithmOption = DEFAULT_ALGORITHM_OPTION;
-            resetDatabase(assignedEvents);
+            regenerateTimetable();
         }
         assignedEvents = assignedEventRepo.findAllByProfAbbr(abbr);
+        return mapEntityListToDtoList(assignedEvents);
+    }
+
+    public List<AssignedEventDto> getAssignedEventsByRoom(String abbr) {
+        List<AssignedEventEntity> assignedEvents = assignedEventRepo.findAllByRoomAbbr(abbr);
+        // if the list is empty, we need to generate
+        if (assignedEvents.isEmpty()) {
+            regenerateTimetable();
+        }
+        assignedEvents = assignedEventRepo.findAllByRoomAbbr(abbr);
 
         return mapEntityListToDtoList(assignedEvents);
     }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TimetableComponent } from './timetable/timetable.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
+import { MatRadioModule } from '@angular/material/radio';
 import { TimetableRoutingModule } from './timetable-routing.module';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { FormsModule } from '@angular/forms';
@@ -21,6 +22,7 @@ import { HttpClientModule } from '@angular/common/http';
     FormsModule,
     MatTableModule,
     MatSelectModule,
+    MatRadioModule,
     TimetableRoutingModule,
   ]
 })

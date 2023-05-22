@@ -11,7 +11,7 @@ export class TimetableService {
 
   constructor(private readonly _http: HttpClient) { }
 
-  getAllAssignedEventsWithAlgorithm(algorithmOption?: string): Observable<AssignedTimetableEvent[]> {
+  public getAllAssignedEventsWithAlgorithm(algorithmOption?: string): Observable<AssignedTimetableEvent[]> {
     let url: string = `${environment.BASE_URL}:${environment.PORT}/api/assigned-events/algorithm`;
     if (algorithmOption) {
       url += `?algorithmOption=${algorithmOption}`;
@@ -24,11 +24,40 @@ export class TimetableService {
     );
   }
 
-  getAllAssignedEventsWithStudentGroup(abbr?: string): Observable<AssignedTimetableEvent[]> {
+  public getAllAssignedEventsWithStudentGroup(abbr?: string): Observable<AssignedTimetableEvent[]> {
     let url: string = `${environment.BASE_URL}:${environment.PORT}/api/assigned-events/student-group`;
     if (abbr) {
       url += `?abbr=${abbr}`;
     }
+
+    return this._http.get(url)
+    .pipe(
+      map<any, AssignedTimetableEvent[]>(response => {
+        return response;
+      })
+    );
+  }
+
+  public getAllAssignedEventsWithProfessor(abbr?: string): Observable<AssignedTimetableEvent[]> {
+    let url: string = `${environment.BASE_URL}:${environment.PORT}/api/assigned-events/professor`;
+    if (abbr) {
+      url += `?abbr=${abbr}`;
+    }
+
+    return this._http.get(url)
+    .pipe(
+      map<any, AssignedTimetableEvent[]>(response => {
+        return response;
+      })
+    );
+  }
+
+  public getAllAssignedEventsWithRoom(abbr?: string): Observable<AssignedTimetableEvent[]> {
+    let url: string = `${environment.BASE_URL}:${environment.PORT}/api/assigned-events/room`;
+    if (abbr) {
+      url += `?abbr=${abbr}`;
+    }
+
     return this._http.get(url)
     .pipe(
       map<any, AssignedTimetableEvent[]>(response => {

@@ -2,7 +2,11 @@
   <div class="sidebar">
     <app-sidebar 
       (onChageSelectedAlgorithm)="onChageSelectedAlgorithm($event)"
+
       (onChangeSelectedStudentGroup)="onChangeStudentGroup($event)"
+      (onChangeSelectedProfessor)="onChangeProfessor($event)"
+      (onChangeSelectedRoom)="onChangeRoom($event)"
+      
       (onClickGenerateTimetable)="onGenerateTimetable()"
     ></app-sidebar>
   </div>

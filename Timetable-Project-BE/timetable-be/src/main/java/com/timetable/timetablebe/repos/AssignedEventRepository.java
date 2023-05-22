@@ -13,13 +13,19 @@ public interface AssignedEventRepository extends JpaRepository<AssignedEventEnti
             "JOIN assigned_event.event event " +
             "JOIN event.studentGroups student_group " +
             "WHERE LOWER(student_group.abbr) = LOWER(:studentGroupAbbr) " +
-            "ORDER BY assigned_event.day, assigned_event.time")
+            "ORDER BY assigned_event.day, assigned_event.time, student_group.abbr")
     List<AssignedEventEntity> findAllByStudentGroupAbbr(String studentGroupAbbr);
 
     @Query(value = "SELECT assigned_event FROM AssignedEventEntity assigned_event " +
             "JOIN assigned_event.event event " +
             "JOIN event.professors professor " +
             "WHERE LOWER(professor.abbr) = LOWER(:profAbbr) " +
-            "ORDER BY assigned_event.day, assigned_event.time")
+            "ORDER BY assigned_event.day, assigned_event.time, professor.abbr")
     List<AssignedEventEntity> findAllByProfAbbr(String profAbbr);
+
+    @Query(value = "SELECT assigned_event FROM AssignedEventEntity assigned_event " +
+            "JOIN assigned_event.resource resource " +
+            "WHERE LOWER(resource.abbr) = LOWER(:roomAbbr) " +
+            "ORDER BY assigned_event.day, assigned_event.time, resource.abbr")
+    List<AssignedEventEntity> findAllByRoomAbbr(String roomAbbr);
 }

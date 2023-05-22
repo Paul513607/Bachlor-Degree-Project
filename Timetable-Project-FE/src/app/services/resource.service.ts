@@ -1,21 +1,21 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { StudentGroup } from '../model/student-group';
 import { Observable, map } from 'rxjs';
+import { Resource } from '../model/resource';
 import { environment } from 'src/enviroments/envoriment';
 
 @Injectable({
   providedIn: 'root'
 })
-export class StudentGroupService {
+export class ResourceService {
 
   constructor(private readonly _http: HttpClient) { }
 
-  public getAllStudentGroups(): Observable<StudentGroup[]> {
-    let url: string = `${environment.BASE_URL}:${environment.PORT}/api/student-groups`;
+  public getAllRooms(): Observable<Resource[]> {
+    let url: string = `${environment.BASE_URL}:${environment.PORT}/api/resources/rooms`;
     return this._http.get(url)
     .pipe(
-      map<any, StudentGroup[]>(response => {
+      map<any, Resource[]>(response => {
         return response;
       })
     );

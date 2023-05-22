@@ -6,6 +6,7 @@ import { AppComponent } from './app.component';
 import { TimetableModule } from './modules/timetable/timetable.module';
 import { MatTableModule } from '@angular/material/table';
 import { MatSelectModule } from '@angular/material/select';
+import { MatRadioModule } from '@angular/material/radio';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -23,6 +24,7 @@ import { HttpClientModule } from '@angular/common/http';
     FormsModule,
     MatTableModule,
     MatSelectModule,
+    MatRadioModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
