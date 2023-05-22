@@ -28,12 +28,13 @@ public class EventEntity {
     private String notes;
     private String type;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "student_group_id", referencedColumnName = "id")
+    @ManyToMany(mappedBy = "eventList", cascade = CascadeType.MERGE)
     private List<StudentGroupEntity> studentGroups = new ArrayList<>();
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "professor_id", referencedColumnName = "id")
+    @ManyToMany(mappedBy = "eventList", cascade = CascadeType.MERGE)
     private List<ProfessorEntity> professors = new ArrayList<>();
+
+    @OneToOne(mappedBy = "event", cascade = CascadeType.MERGE)
+    private AssignedEventEntity assignedEvent;
 
     public void addStudentGroup(StudentGroupEntity studentGroup) {
         studentGroups.add(studentGroup);

@@ -1,29 +1,35 @@
 package com.timetable.timetablebe.components;
 
-import com.timetable.timetablebe.entities.EventEntity;
-import com.timetable.timetablebe.entities.ProfessorEntity;
-import com.timetable.timetablebe.entities.ResourceEntity;
-import com.timetable.timetablebe.entities.StudentGroupEntity;
-import com.timetable.timetablebe.repos.EventRepository;
-import com.timetable.timetablebe.repos.ProfessorRepository;
-import com.timetable.timetablebe.repos.ResourceRepository;
-import com.timetable.timetablebe.repos.StudentGroupRepository;
+import com.timetable.timetablebe.entities.*;
+import com.timetable.timetablebe.repos.*;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
+import org.timetable.algorithm.wraps.ColorDayTimeWrap;
+import org.timetable.model.TimetableNode;
+import org.timetable.pojo.Event;
+import org.timetable.pojo.Group;
+import org.timetable.pojo.Prof;
 import org.timetable.pojo.Timetable;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.timetable.Main.loadTimetable;
+import static org.timetable.Main.roomOnlyColoring;
 
 @Component
 public class ApplicationStartup implements ApplicationRunner {
     public static final String XML_FILEPATH = "src/main/resources/data/export_2022-2023_semestrul_1.xml";
+    private final String DEFAULT_ALGORITHM_OPTION = "1";
 
+    @Autowired
+    private AssignedEventRepository assignedEventRepo;
     @Autowired
     private EventRepository eventRepo;
     @Autowired
@@ -36,25 +42,99 @@ public class ApplicationStartup implements ApplicationRunner {
     @Autowired
     private ModelMapper mapper;
 
+    private List<AssignedEventEntity> mapAlgorithmResultsToEntities(Map<TimetableNode, ColorDayTimeWrap> timetable) {
+        return getAssignedEventEntities(timetable, mapper);
+    }
+
+    public static List<AssignedEventEntity> getAssignedEventEntities(Map<TimetableNode, ColorDayTimeWrap> timetable, ModelMapper mapper) {
+        List<AssignedEventEntity> assignedEventEntities = new ArrayList<>();
+        for (Map.Entry<TimetableNode, ColorDayTimeWrap> entry : timetable.entrySet()) {
+            TimetableNode timetableNode = entry.getKey();
+            ColorDayTimeWrap colorDayTimeWrap = entry.getValue();
+
+            EventEntity eventEntity = mapper.map(timetableNode.getEvent(), EventEntity.class);
+            for (Group group : timetableNode.getEvent().getGroupList()) {
+                eventEntity.addStudentGroup(mapper.map(group, StudentGroupEntity.class));
+            }
+            for (Prof prof : timetableNode.getEvent().getProfList()) {
+                eventEntity.addProf(mapper.map(prof, ProfessorEntity.class));
+            }
+
+            ResourceEntity resourceEntity = mapper.map(colorDayTimeWrap.getColor().getResource(), ResourceEntity.class);
+            int day = colorDayTimeWrap.getDay();
+            LocalTime time = LocalTime.of(colorDayTimeWrap.getTime(), 0);
+
+            AssignedEventEntity assignedEventEntity = new AssignedEventEntity(eventEntity, resourceEntity, day, time);
+
+            assignedEventEntities.add(assignedEventEntity);
+        }
+
+        return assignedEventEntities;
+    }
+
     @Override
     public void run(ApplicationArguments args) throws Exception {
         Timetable timetable = loadTimetable(XML_FILEPATH);
+        assignedEventRepo.deleteAll();
+        resourceRepo.deleteAll();
+        studentGroupRepo.deleteAll();
+        professorRepo.deleteAll();
+        eventRepo.deleteAll();
+
+        if (resourceRepo.findAll().isEmpty()) {
+            List<ResourceEntity> resourceEntities = timetable.getResources().stream()
+                    .map(resource -> mapper.map(resource, ResourceEntity.class))
+                    .toList();
+            resourceRepo.saveAll(resourceEntities);
+        }
+
+        if (!eventRepo.findAll().isEmpty()) {
+            return;
+        }
 
         List<EventEntity> eventEntities = timetable.getEvents().stream()
-                .map(group -> mapper.map(group, EventEntity.class))
+                .map(event -> {
+                    EventEntity eventEntity = mapper.map(event, EventEntity.class);
+                    for (Group group : event.getGroupList()) {
+                        eventEntity.addStudentGroup(mapper.map(group, StudentGroupEntity.class));
+                    }
+                    for (Prof prof : event.getProfList()) {
+                        eventEntity.addProf(mapper.map(prof, ProfessorEntity.class));
+                    }
+                    return eventEntity;
+                })
+                .toList();
+
+        List<StudentGroupEntity> studentGroupEntities = timetable.getGroups().stream()
+                .map(group -> {
+                    StudentGroupEntity studentGroupEntity = mapper.map(group, StudentGroupEntity.class);
+
+                    for (EventEntity eventEntity : eventEntities) {
+                        if (eventEntity.getStudentGroups().stream()
+                                .anyMatch(studentGroup ->
+                                        studentGroup.getAbbr().equals(studentGroupEntity.getAbbr()))) {
+                            studentGroupEntity.addEvent(eventEntity);
+                        }
+                    }
+                    return studentGroupEntity;
+                })
+                .toList();
+        List<ProfessorEntity> professorEntities = timetable.getProfs().stream()
+                .map(prof -> {
+                    ProfessorEntity professorEntity = mapper.map(prof, ProfessorEntity.class);
+
+                    for (EventEntity eventEntity : eventEntities) {
+                        if (eventEntity.getProfessors().stream()
+                                .anyMatch(professor ->
+                                        professor.getAbbr().equals(professorEntity.getAbbr()))) {
+                            professorEntity.addEvent(eventEntity);
+                        }
+                    }
+                    return professorEntity;
+                })
                 .toList();
         eventRepo.saveAll(eventEntities);
-        List<ResourceEntity> resourceEntities = timetable.getResources().stream()
-                .map(resource -> mapper.map(resource, ResourceEntity.class))
-                .toList();
-        resourceRepo.saveAll(resourceEntities);
-        List<StudentGroupEntity> studentGroupEntities = timetable.getGroups().stream()
-                .map(group -> mapper.map(group, StudentGroupEntity.class))
-                .toList();
         studentGroupRepo.saveAll(studentGroupEntities);
-        List<ProfessorEntity> professorEntities = timetable.getProfs().stream()
-                .map(prof -> mapper.map(prof, ProfessorEntity.class))
-                .toList();
         professorRepo.saveAll(professorEntities);
     }
 }

@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "resources")
 @Data
@@ -22,4 +25,11 @@ public class ResourceEntity {
     private String notes;
     private Integer quantity;
     private String type;
+
+    @OneToMany(mappedBy = "resource", cascade = CascadeType.MERGE)
+    private List<AssignedEventEntity> assignedEvent = new ArrayList<>();
+
+    public void addAssignedEvent(AssignedEventEntity assignedEvent) {
+        this.assignedEvent.add(assignedEvent);
+    }
 }

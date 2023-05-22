@@ -18,11 +18,20 @@
           <ng-container *ngFor="let day of days">
               <tr>
                 <th>{{ day }}</th>
-                <ng-container *ngFor="let classTime of classTimes">
-                  <td> data </td>
+                <ng-container *ngIf="dayToEventsMap$ | async as dayToEventsMap">
+                <ng-container *ngFor="let assignedEvent of dayToEventsMap.get(day)">
+                  <td> 
+                    <div class="timetable-card" *ngIf="assignedEvent.event != null">
+                      {{ assignedEvent.event.abbr }} 
+                    </div>
+                    <ng-template #emptyCard>
+                      <div class="timetable-card"></div>
+                    </ng-template>
+                  </td>
+                </ng-container>
                 </ng-container>
               </tr>
-            </ng-container>
+          </ng-container>
       </tbody>
     </table>
   </div>

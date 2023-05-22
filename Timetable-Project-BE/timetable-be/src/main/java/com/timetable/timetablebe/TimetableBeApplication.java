@@ -13,8 +13,4 @@ public class TimetableBeApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TimetableBeApplication.class, args);
 	}
-
-	public List<AssignedEventDto> getAssignedEvents() {
-		return null;
-	}
 }

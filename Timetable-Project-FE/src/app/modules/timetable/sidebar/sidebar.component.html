@@ -27,8 +27,8 @@
                 name="selectedStudentGroup" 
                 class="form-select"
                 (selectionChange)="onChangeStudentGroup(selectedStudentGroup)">
-                    <mat-option *ngFor="let studentGroup of studentGroupList" [value]="studentGroup">
-                        {{ studentGroup }}
+                    <mat-option *ngFor="let abbr of studentGroupAbbrsList" [value]="abbr">
+                        {{ abbr }}
                     </mat-option>
                 </mat-select>
             </mat-form-field>

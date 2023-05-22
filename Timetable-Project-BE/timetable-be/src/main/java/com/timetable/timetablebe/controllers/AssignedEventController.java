@@ -38,4 +38,12 @@ public class AssignedEventController {
                 assignedEventService.getAssignedEventsByStudentGroup(abbr);
         return new ResponseEntity<>(assignedEventDtos, null, HttpStatus.OK);
     }
+
+    @GetMapping("/professor")
+    public ResponseEntity<List<AssignedEventDto>> getAssignedEventsByProfessor(
+                                        @RequestParam(name = "abbr") String abbr) {
+        List<AssignedEventDto> assignedEventDtos =
+                assignedEventService.getAssignedEventsByProfessor(abbr);
+        return new ResponseEntity<>(assignedEventDtos, null, HttpStatus.OK);
+    }
 }

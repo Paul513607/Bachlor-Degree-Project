@@ -15,4 +15,11 @@ public interface AssignedEventRepository extends JpaRepository<AssignedEventEnti
             "WHERE LOWER(student_group.abbr) = LOWER(:studentGroupAbbr) " +
             "ORDER BY assigned_event.day, assigned_event.time")
     List<AssignedEventEntity> findAllByStudentGroupAbbr(String studentGroupAbbr);
+
+    @Query(value = "SELECT assigned_event FROM AssignedEventEntity assigned_event " +
+            "JOIN assigned_event.event event " +
+            "JOIN event.professors professor " +
+            "WHERE LOWER(professor.abbr) = LOWER(:profAbbr) " +
+            "ORDER BY assigned_event.day, assigned_event.time")
+    List<AssignedEventEntity> findAllByProfAbbr(String profAbbr);
 }

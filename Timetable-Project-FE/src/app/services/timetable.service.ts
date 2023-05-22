@@ -12,7 +12,7 @@ export class TimetableService {
   constructor(private readonly _http: HttpClient) { }
 
   getAllAssignedEventsWithAlgorithm(algorithmOption?: string): Observable<AssignedTimetableEvent[]> {
-    let url: string = `${environment.BASE_URL}:${environment.PORT}/api/assigned-events/algorithms`;
+    let url: string = `${environment.BASE_URL}:${environment.PORT}/api/assigned-events/algorithm`;
     if (algorithmOption) {
       url += `?algorithmOption=${algorithmOption}`;
     }

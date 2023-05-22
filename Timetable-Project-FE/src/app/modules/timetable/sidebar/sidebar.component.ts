@@ -1,6 +1,11 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { MatSelect } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { Professor } from 'src/app/model/professor';
+import { StudentGroup } from 'src/app/model/student-group';
+import { ProfessorService } from 'src/app/services/professor.service';
+import { StudentGroupService } from 'src/app/services/student-group.service';
 import { TimetableService } from 'src/app/services/timetable.service';
 
 @Component({
@@ -14,10 +19,17 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
     {option: '2', label: '2'},
     {option: '3', label: '3'},
   ];
-  public studentGroupList: string[] = ['I3A6', 'I3B1'];
+
+  public studentGroupList: StudentGroup[] = [];
+  public professorList: Professor[] = [];
+  
+  public studentGroupAbbrsList: string[] = [];
+  public professorAbbrsList: string[] = [];
 
   public selectedAlgorithmOption: string = '';
   public selectedStudentGroup: string = '';
+
+  public unsubscribe$: Subject<void> = new Subject<void>();
 
 
   @Output()
@@ -29,17 +41,22 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
 
   constructor(
     private timetableService: TimetableService,
+    private studentGroupService: StudentGroupService,
+    private professorService: ProfessorService,
     private router: Router,
     private readonly activatedRoute: ActivatedRoute
-  ) {
-  }
+  ) { }
+
   ngAfterViewInit(): void {
   }
 
   ngOnInit(): void {
+    this.populateLists();
   }
 
   ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   public onChangeAlgorithmOption(algorithmOption: string): void {
@@ -55,5 +72,23 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
     this.onClickGenerateTimetable.emit();
+  }
+
+  private populateLists(): void {
+    this.studentGroupService.getAllStudentGroups()
+    .subscribe(studentGroups => {
+      studentGroups.forEach(studentGroup => {
+        this.studentGroupList.push(studentGroup);
+        this.studentGroupAbbrsList.push(studentGroup.abbr);
+      });
+    });
+
+    this.professorService.getAllProfessors()
+    .subscribe(professors => {
+      professors.forEach(professor => {
+        this.professorList.push(professor);
+        this.professorAbbrsList.push(professor.abbr);
+      });
+    });
   }
 }

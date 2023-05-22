@@ -58,29 +58,7 @@ public class AssignedEventService {
     }
 
     private List<AssignedEventEntity> mapAlgorithmResultsToEntities(Map<TimetableNode, ColorDayTimeWrap> timetable) {
-        List<AssignedEventEntity> assignedEventEntities = new ArrayList<>();
-        for (Map.Entry<TimetableNode, ColorDayTimeWrap> entry : timetable.entrySet()) {
-            TimetableNode timetableNode = entry.getKey();
-            ColorDayTimeWrap colorDayTimeWrap = entry.getValue();
-
-            EventEntity eventEntity = mapper.map(timetableNode.getEvent(), EventEntity.class);
-            for (Group group : timetableNode.getEvent().getGroupList()) {
-                eventEntity.addStudentGroup(mapper.map(group, StudentGroupEntity.class));
-            }
-            for (Prof prof : timetableNode.getEvent().getProfList()) {
-                eventEntity.addProf(mapper.map(prof, ProfessorEntity.class));
-            }
-
-            ResourceEntity resourceEntity = mapper.map(colorDayTimeWrap.getColor().getResource(), ResourceEntity.class);
-            int day = colorDayTimeWrap.getDay();
-            LocalTime time = LocalTime.of(colorDayTimeWrap.getTime(), 0);
-
-            AssignedEventEntity assignedEventEntity = new AssignedEventEntity(eventEntity, resourceEntity, day, time);
-
-            assignedEventEntities.add(assignedEventEntity);
-        }
-
-        return assignedEventEntities;
+        return ApplicationStartup.getAssignedEventEntities(timetable, mapper);
     }
 
     public List<AssignedEventDto> getAssignedEvents() {
@@ -92,33 +70,34 @@ public class AssignedEventService {
     private void resetDatabase(List<AssignedEventEntity> assignedEvents) {
         // if the option was changed, reset the database
         assignedEventRepo.deleteAll();
-        studentGroupRepo.deleteAll();
-        professorRepo.deleteAll();
-        eventRepo.deleteAll();
-        resourceRepo.deleteAll();
 
-        Set<StudentGroupEntity> studentGroups = new HashSet<>();
-        Set<ProfessorEntity> professors = new HashSet<>();
         for (AssignedEventEntity assignedEvent : assignedEvents) {
-            studentGroups.addAll(assignedEvent.getEvent().getStudentGroups());
-            professors.addAll(assignedEvent.getEvent().getProfessors());
-        }
+            EventEntity event = assignedEvent.getEvent();
+            ResourceEntity resource = assignedEvent.getResource();
 
-        studentGroupRepo.saveAll(studentGroups);
-        professorRepo.saveAll(professors);
-        eventRepo.saveAll(assignedEvents.stream().map(AssignedEventEntity::getEvent).toList());
-        resourceRepo.saveAll(assignedEvents.stream().map(AssignedEventEntity::getResource).toList());
-        assignedEventRepo.saveAll(assignedEvents);
+            Optional<EventEntity> eventOptional = eventRepo.findByAbbr(event.getAbbr());
+            if (eventOptional.isEmpty()) {
+                continue;
+            }
+
+            Optional<ResourceEntity> resourceOptional = resourceRepo.findByAbbr(resource.getAbbr());
+            if (resourceOptional.isEmpty()) {
+                continue;
+            }
+            event = eventOptional.get();
+            assignedEvent.setEvent(event);
+            resource = resourceOptional.get();
+            assignedEvent.setResource(resource);
+
+            assignedEventRepo.save(assignedEvent);
+            event.setAssignedEvent(assignedEvent);
+            eventRepo.save(event);
+            resource.addAssignedEvent(assignedEvent);
+            resourceRepo.save(resource);
+        }
     }
 
     public List<AssignedEventDto> getAssignedEventsByAlgorithm(String algorithmOption) {
-        // if the option was changed, reset the database
-        assignedEventRepo.deleteAll();
-        studentGroupRepo.deleteAll();
-        professorRepo.deleteAll();
-        eventRepo.deleteAll();
-        resourceRepo.deleteAll();
-
         List<AssignedEventEntity> assignedEvents;
         Map<TimetableNode, ColorDayTimeWrap> timetable;
 
@@ -159,6 +138,23 @@ public class AssignedEventService {
         List<AssignedEventEntity> assignedEvents = assignedEventRepo.findAllByStudentGroupAbbr(abbr);
         // if the list is empty, we need to generate
         if (assignedEvents.isEmpty()) {
+            System.out.println("Generating timetable  " + abbr);
+            Map<TimetableNode, ColorDayTimeWrap> timetable =
+                    roomOnlyColoring(ApplicationStartup.XML_FILEPATH);
+            assignedEvents = mapAlgorithmResultsToEntities(timetable);
+
+            cachedAlgorithmOption = DEFAULT_ALGORITHM_OPTION;
+            resetDatabase(assignedEvents);
+        }
+        assignedEvents = assignedEventRepo.findAllByStudentGroupAbbr(abbr);
+
+        return mapEntityListToDtoList(assignedEvents);
+    }
+
+    public List<AssignedEventDto> getAssignedEventsByProfessor(String abbr) {
+        List<AssignedEventEntity> assignedEvents = assignedEventRepo.findAllByProfAbbr(abbr);
+        // if the list is empty, we need to generate
+        if (assignedEvents.isEmpty()) {
             Map<TimetableNode, ColorDayTimeWrap> timetable; timetable =
                     roomOnlyColoring(ApplicationStartup.XML_FILEPATH);
             assignedEvents = mapAlgorithmResultsToEntities(timetable);
@@ -166,6 +162,7 @@ public class AssignedEventService {
             cachedAlgorithmOption = DEFAULT_ALGORITHM_OPTION;
             resetDatabase(assignedEvents);
         }
+        assignedEvents = assignedEventRepo.findAllByProfAbbr(abbr);
 
         return mapEntityListToDtoList(assignedEvents);
     }

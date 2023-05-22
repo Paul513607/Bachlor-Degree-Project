@@ -16,10 +16,11 @@ public class AssignedEventEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @OneToOne
+
+    @OneToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "event_id", referencedColumnName = "id")
     private EventEntity event;
-    @OneToOne
+    @ManyToOne(cascade = CascadeType.MERGE)
     @JoinColumn(name = "resource_id", referencedColumnName = "id")
     private ResourceEntity resource;
     private Integer day;
