@@ -8,7 +8,6 @@ import { AssignedTimetableEvent } from '../model/assigned-timetable-event';
   providedIn: 'root'
 })
 export class TimetableService {
-
   constructor(private readonly _http: HttpClient) { }
 
   public getAllAssignedEventsWithAlgorithm(algorithmOption?: string): Observable<AssignedTimetableEvent[]> {

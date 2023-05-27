@@ -1,0 +1,65 @@
+<div class="event-card" 
+*ngIf="assignedEvent.event">
+    <h3 class="card-title">{{ assignedEvent.event.name }}</h3>
+    <mat-expansion-panel class="expansion-panel">
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                Event Details
+            </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="card-event-details">
+            <span> Name: {{ assignedEvent.event.name }} </span>
+            <span> Abbr: {{ assignedEvent.event.abbr }} </span>
+            <span> Actors: {{ assignedEvent.event.actors }} </span>
+            <span> Duration: {{ assignedEvent.event.duration }} </span>
+            <span> Frequency: {{ assignedEvent.event.frequency }} </span>
+            <span> Event Group: {{ assignedEvent.event.eventGroup }} </span>
+            <span> Type: {{ assignedEvent.event.type}} </span>
+            <span class="event-notes" 
+            *ngIf="assignedEvent.event.notes !== ''"> 
+                Notes: {{ assignedEvent.event.notes }} 
+            </span>
+        </div>
+    </mat-expansion-panel>
+    <mat-expansion-panel class="expansion-panel"
+    *ngIf="assignedEvent.resource">
+        <mat-expansion-panel-header>
+            <mat-panel-title>
+                Room Details
+            </mat-panel-title>
+        </mat-expansion-panel-header>
+        <div class="card-room-details">
+            <span> Name: {{ assignedEvent.resource.name }} </span>
+            <span> Abbr: {{ assignedEvent.resource.abbr }} </span>
+            <span> Capacity: {{ assignedEvent.resource.capacity }} </span>
+            <span> Type: {{ assignedEvent.resource.type }} </span>
+            <span class="room-notes" 
+            *ngIf="assignedEvent.resource.notes !== ''"> 
+                Notes: {{ assignedEvent.resource.notes }} 
+            </span>
+        </div>
+    </mat-expansion-panel>
+    <div class="card-details"
+    *ngIf="assignedEvent.day !== null">
+        <span> Day: {{ dayNumberToNameMap.get(assignedEvent.day) }} </span>
+        <span> Time: {{ assignedEvent.time }} </span>
+    </div>
+    <div class="card-bottom">
+        <div
+        *ngIf="assignedEvent.resource == null">
+            <mat-button-toggle 
+            class="card-unassigned-event-button"
+            #toggleAvailabilityBtn
+            (change)="onToggleAvailabilityCheck(toggleAvailabilityBtn)">
+                <span class="card-unassigned-event-button-text">Availability</span>
+            </mat-button-toggle>
+        </div>
+        <div>
+            <button mat-raised-button color="primary"
+            class="card-close-button" 
+            (click)="onCloseEventCard()">
+                Close
+            </button>
+        </div>
+    </div>
+</div>

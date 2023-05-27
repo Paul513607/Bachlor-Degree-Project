@@ -21,7 +21,7 @@ import static org.timetable.Main.*;
 
 @Service
 public class AssignedEventService {
-    private static final String DEFAULT_ALGORITHM_OPTION = "1";
+    private static final String DEFAULT_ALGORITHM_OPTION = "2";
     private String cachedAlgorithmOption = "";
 
     @Autowired
@@ -137,7 +137,7 @@ public class AssignedEventService {
     private void regenerateTimetable() {
         System.out.println("Generating timetable");
         Map<TimetableNode, ColorDayTimeWrap> timetable =
-                roomOnlyColoring(ApplicationStartup.XML_FILEPATH);
+                intervalRoomColoringGreedy(ApplicationStartup.XML_FILEPATH);
         List<AssignedEventEntity> assignedEvents = mapAlgorithmResultsToEntities(timetable);
 
         cachedAlgorithmOption = DEFAULT_ALGORITHM_OPTION;

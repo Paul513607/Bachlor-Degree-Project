@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subject, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, lastValueFrom, takeUntil } from 'rxjs';
 import { AssignedTimetableEvent, emptyAssignedTimetableEvent } from 'src/app/model/assigned-timetable-event';
+import { TimetableEvent } from 'src/app/model/timetable-event';
 import { TimetableService } from 'src/app/services/timetable.service';
 
 @Component({
@@ -31,14 +32,12 @@ export class TimetableComponent implements OnInit, OnDestroy {
 
   public unsubscribe$: Subject<void> = new Subject<void>();
 
-  @Input()
   public selectedAlgorithmOption: string = '';
-  @Input()
   public selectedStudentGroup: string = '';
-  @Input()
   public selectedProfessor: string = '';
-  @Input()
   public selectedRoom: string = '';
+
+  public currentAssignedEvent: AssignedTimetableEvent = emptyAssignedTimetableEvent;
 
   public dayToEventsMap$: Observable<Map<string, AssignedTimetableEvent[]>> = new Observable<Map<string, AssignedTimetableEvent[]>>();
   public dayToEventsMap: Map<string, AssignedTimetableEvent[]> = new Map<string, AssignedTimetableEvent[]>();
@@ -126,7 +125,8 @@ export class TimetableComponent implements OnInit, OnDestroy {
   }
 
   private placeAssignedEventsOnTimetable(assignedEvents: AssignedTimetableEvent[]): void {
-    this.assignedEvents$.subscribe((assignedEvents: AssignedTimetableEvent[]) => {
+    this.assignedEvents$
+    .subscribe((assignedEvents: AssignedTimetableEvent[]) => {
       this.assignedEvents = assignedEvents;
       this.dayToEventsMap$ = this.addEventsToMap(this.assignedEvents);
     });
@@ -176,5 +176,22 @@ export class TimetableComponent implements OnInit, OnDestroy {
       currentSlotIndex++; 
     }
     return -1;
+  }
+
+  public updateCurrentAssignedEvent(assignedEvent: AssignedTimetableEvent): void {
+    this.currentAssignedEvent = assignedEvent;
+  }
+
+  public displayUnassignedEvent(currentEvent: AssignedTimetableEvent): void {
+    this.currentAssignedEvent = currentEvent;
+  }
+
+  public toggleAvailabilityTrue(event: TimetableEvent): void {
+    console.log(event);
+  }
+
+  public toggleAvailabilityFalse(event: TimetableEvent): void {
+    console.log(event);
+
   }
 }

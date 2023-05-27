@@ -14,6 +14,7 @@ public interface EventRepository extends JpaRepository<EventEntity, Long> {
     @Query(value = "SELECT event FROM EventEntity event " +
             "LEFT JOIN AssignedEventEntity assignedEvent " +
             "ON event.id = assignedEvent.event.id " +
-            "WHERE assignedEvent.event.id IS NULL ")
+            "WHERE assignedEvent.event.id IS NULL " +
+            "ORDER BY event.name")
     List<EventEntity> findAllUnassignedEvents();
 }

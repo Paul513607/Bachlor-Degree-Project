@@ -5,9 +5,10 @@
 
       (onChangeSelectedStudentGroup)="onChangeStudentGroup($event)"
       (onChangeSelectedProfessor)="onChangeProfessor($event)"
-      (onChangeSelectedRoom)="onChangeRoom($event)"
+      (onChangeSelectedRoom)="onChangeRoom($event)" 
       
       (onClickGenerateTimetable)="onGenerateTimetable()"
+      (onClickEventCard)="displayUnassignedEvent($event)"
     ></app-sidebar>
   </div>
   <div class="timetable">
@@ -25,8 +26,16 @@
                 <ng-container *ngIf="dayToEventsMap$ | async as dayToEventsMap">
                 <ng-container *ngFor="let assignedEvent of dayToEventsMap.get(day)">
                   <td> 
-                    <div class="timetable-card" *ngIf="assignedEvent.event != null">
-                      {{ assignedEvent.event.abbr }} 
+                    <div class="timetable-card" 
+                    *ngIf="assignedEvent.event && assignedEvent.resource">
+                      <mat-card (click)="updateCurrentAssignedEvent(assignedEvent)">
+                        <mat-card-title class="mat-card-title"> 
+                          {{ assignedEvent.event.name }} 
+                        </mat-card-title>
+                        <mat-card-subtitle class="mat-card-subtitle"> 
+                          {{ assignedEvent.resource.name }} 
+                        </mat-card-subtitle>
+                      </mat-card>
                     </div>
                     <ng-template #emptyCard>
                       <div class="timetable-card"></div>
@@ -39,4 +48,10 @@
       </tbody>
     </table>
   </div>
+  <div class="current-event-card">
+    <app-event-card 
+      [assignedEvent]="currentAssignedEvent"
+      (toggleAvailabilityOn)="toggleAvailabilityTrue($any($event))"
+      (toggleAvailabilityOff)="toggleAvailabilityFalse($any($event))"
+    ></app-event-card>
 </div>

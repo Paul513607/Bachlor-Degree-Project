@@ -1,0 +1,62 @@
+.event-card {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin: 10px;
+    width: 200px;
+    box-sizing: border-box;
+    border: 1px solid black;
+}
+
+.card-title {
+    align-content: center;
+    text-align: center;
+    margin: 2px;
+    font-weight: bold;
+    overflow-wrap: break-word;
+}
+
+.expansion-panel {
+    margin: 2px;
+}
+
+.card-event-details, .card-room-details, 
+.card-details {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.card-bottom {
+    display: flex;
+    justify-content: space-between;
+    margin: 2px;
+    padding-top: 5px;
+}
+
+.card-close-button {
+    font-size: 16px;
+    height: 90%;
+    float: right;
+}
+
+.card-unassigned-event-button {
+    height: 90%;
+    align-self: flex-start;
+}
+
+.mat-button-toggle-checked.mat-button-toggle {
+    background-color: rgba(255, 255, 0, 0.5);
+}
+
+.card-unassigned-event-button-text {
+    font-size: 16px;
+}
+
+
+.event-notes, .room-notes {
+    overflow: scroll;
+}
