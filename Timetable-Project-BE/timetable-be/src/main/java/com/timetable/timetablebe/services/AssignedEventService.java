@@ -308,7 +308,7 @@ public class AssignedEventService {
             String endTime = formatTimeAsString(assignedEvent.getTime()
                                 .plusHours(assignedEvent.getEvent().getDuration()));
             int start = startCounter;
-            int end = startCounter + assignedEvent.getEvent().getDuration();
+            int end = startCounter + 2;
             int week = 0;
 
             AssignedEventPojo assignedEventPojo = new AssignedEventPojo(assignedEvent.getDay(), startTime, endTime,
