@@ -10,7 +10,9 @@ import org.timetable.model.*;
 import org.timetable.pojo.*;
 import org.timetable.util.Parser;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -30,9 +32,30 @@ public class Main {
         return parser.getTimetable();
     }
 
-    public static Map<TimetableNode, ColorDayTimeWrap> roomOnlyColoring(String xmlFilePath) {
-        RoomColorGraphGenerator generator = new RoomColorGraphGenerator();
+    public static Timetable loadTimetable(byte[] xmlFileContent) {
+        Parser parser = new Parser();
+        try (InputStream inputStream = new ByteArrayInputStream(xmlFileContent)) {
+            parser.parse(inputStream);
+        } catch (IOException e) {
+            System.out.println("Error while parsing the XML file.");
+            e.printStackTrace();
+        }
+        parser.setLinksForTimetable();
+        return parser.getTimetable();
+    }
+
+    public static Map<TimetableNode, ColorDayTimeWrap> roomOnlyColoringFilePath(String xmlFilePath) {
         Timetable timetable = loadTimetable(xmlFilePath);
+        return roomOnlyColoringAlgorithm(timetable);
+    }
+
+    public static Map<TimetableNode, ColorDayTimeWrap> roomOnlyColoringFileContent(byte[] xmlFileContent) {
+        Timetable timetable = loadTimetable(xmlFileContent);
+        return roomOnlyColoringAlgorithm(timetable);
+    }
+
+    private static Map<TimetableNode, ColorDayTimeWrap> roomOnlyColoringAlgorithm(Timetable timetable) {
+        RoomColorGraphGenerator generator = new RoomColorGraphGenerator();
         TimetableGraph<TimetableNode, TimetableEdge> graph = generator.createGraph(timetable);
         List<TimetableColorRoom> laboratoryColors = generator.createTimetableLaboratoryColors(timetable);
         List<TimetableColorRoom> courseColors = generator.createTimetableCourseColors(timetable);
@@ -44,9 +67,18 @@ public class Main {
         return algorithm.getNodeColorMap();
     }
 
-    public static Map<TimetableNode, ColorDayTimeWrap> intervalRoomColoringGreedy(String xmlFilePath) {
-        IntervalRoomColorGraphGenerator generator = new IntervalRoomColorGraphGenerator();
+    public static Map<TimetableNode, ColorDayTimeWrap> intervalRoomColoringGreedyFilePath(String xmlFilePath) {
         Timetable timetable = loadTimetable(xmlFilePath);
+        return intervalRoomColoringGreedyAlgorithm(timetable);
+    }
+
+    public static Map<TimetableNode, ColorDayTimeWrap> intervalRoomColoringGreedyFileContent(byte[] xmlFileContent) {
+        Timetable timetable = loadTimetable(xmlFileContent);
+        return intervalRoomColoringGreedyAlgorithm(timetable);
+    }
+
+    private static Map<TimetableNode, ColorDayTimeWrap> intervalRoomColoringGreedyAlgorithm(Timetable timetable) {
+        IntervalRoomColorGraphGenerator generator = new IntervalRoomColorGraphGenerator();
         TimetableGraph<TimetableNode, TimetableEdge> graph = generator.createGraph(timetable);
         List<TimetableColorIntervalRoom> laboratoryColors = generator.createTimetableLaboratoryColors(timetable);
         List<TimetableColorIntervalRoom> courseColors = generator.createTimetableCourseColors(timetable);
@@ -58,9 +90,18 @@ public class Main {
         return algorithm.getNodeColorMap();
     }
 
-    public static Map<TimetableNode, ColorDayTimeWrap> intervalRoomColoringDSatur(String xmlFilePath) {
-        IntervalRoomColorGraphGenerator generator = new IntervalRoomColorGraphGenerator();
+    public static Map<TimetableNode, ColorDayTimeWrap> intervalRoomColoringDSaturFilePath(String xmlFilePath) {
         Timetable timetable = loadTimetable(xmlFilePath);
+        return intervalRoomColoringDSaturAlgorithm(timetable);
+    }
+
+    public static Map<TimetableNode, ColorDayTimeWrap> intervalRoomColoringDSaturFileContent(byte[] xmlFileContent) {
+        Timetable timetable = loadTimetable(xmlFileContent);
+        return intervalRoomColoringDSaturAlgorithm(timetable);
+    }
+
+    private static Map<TimetableNode, ColorDayTimeWrap> intervalRoomColoringDSaturAlgorithm(Timetable timetable) {
+        IntervalRoomColorGraphGenerator generator = new IntervalRoomColorGraphGenerator();
         TimetableGraph<TimetableNode, TimetableEdge> graph = generator.createGraph(timetable);
         List<TimetableColorIntervalRoom> laboratoryColors = generator.createTimetableLaboratoryColors(timetable);
         List<TimetableColorIntervalRoom> courseColors = generator.createTimetableCourseColors(timetable);
@@ -92,11 +133,11 @@ public class Main {
         }
 
         if (algorithmOption == 1) {
-            app.roomOnlyColoring(XML_FILEPATH);
+            roomOnlyColoringFilePath(XML_FILEPATH);
         } else if (algorithmOption == 2) {
-            app.intervalRoomColoringGreedy(XML_FILEPATH);
+            intervalRoomColoringGreedyFilePath(XML_FILEPATH);
         } else if (algorithmOption == 3) {
-            app.intervalRoomColoringDSatur(XML_FILEPATH);
+            intervalRoomColoringDSaturFilePath(XML_FILEPATH);
         }
     }
 }

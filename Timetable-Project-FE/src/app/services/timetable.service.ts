@@ -64,4 +64,58 @@ export class TimetableService {
       })
     );
   }
+
+  public createAssignedEvent(assignedEvent: AssignedTimetableEvent): Observable<void> {
+    let url: string = `${environment.BASE_URL}:${environment.PORT}/api/assigned-events`;
+    return this._http.post(url, assignedEvent)
+    .pipe(
+      map<any, void>(response => {
+        console.log(response);
+        return response;
+      })
+    );
+  }
+
+  public updateAssignedEvent(assignedEvent: AssignedTimetableEvent): Observable<void> {
+    let url: string = `${environment.BASE_URL}:${environment.PORT}/api/assigned-events`;
+    return this._http.put(url, assignedEvent)
+    .pipe(
+      map<any, void>(response => {
+        console.log(response);
+        return response;
+      })
+    );
+  }
+
+  public getIdForAssignedEvent(assignedEvent: AssignedTimetableEvent): Observable<number> {
+    let url: string = `${environment.BASE_URL}:${environment.PORT}/api/assigned-events/id`;
+    return this._http.post(url, assignedEvent)
+    .pipe(
+      map<any, number>(response => {
+        console.log(response);
+        return response;
+      })
+    );
+  }
+
+  public deleteAssignedEvent(id: number): Observable<void> {
+    let url: string = `${environment.BASE_URL}:${environment.PORT}/api/assigned-events/${id}`;
+    return this._http.delete(url)
+    .pipe(
+      map<any, void>(response => {
+        console.log(response);
+        return response;
+      })
+    );
+  }
+
+  public downloadCurrentConfiguration(): Observable<ArrayBuffer> {
+    let url: string = `${environment.BASE_URL}:${environment.PORT}/api/assigned-events/download`;
+    return this._http.get(url, {responseType: 'arraybuffer'})
+    .pipe(
+      map<any, ArrayBuffer>(response => {
+        return response;
+      })
+    );
+  }
 }

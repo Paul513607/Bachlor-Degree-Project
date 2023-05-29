@@ -21,11 +21,19 @@ export class EventCardComponent implements OnInit, OnDestroy {
 
   @Input()
   public assignedEvent: AssignedTimetableEvent = emptyAssignedTimetableEvent;
+  @Input()
+  public isCheckingAvailability: boolean = false;
 
   @Output()
   public toggleAvailabilityOn = new EventEmitter<TimetableEvent>();
   @Output()
   public toggleAvailabilityOff = new EventEmitter<TimetableEvent>();
+  @Output()
+  public onCloseEventCardEmitter = new EventEmitter<void>();
+  @Output()
+  public onDeleteEventEmitter = new EventEmitter<AssignedTimetableEvent>();
+
+  public availabilityToggleBtn: MatButtonToggle | null = document.getElementById('availabilityButton') as MatButtonToggle | null;
 
   constructor() {
   }
@@ -38,17 +46,32 @@ export class EventCardComponent implements OnInit, OnDestroy {
 
   public onCloseEventCard(): void {
     this.assignedEvent = emptyAssignedTimetableEvent;
+    this.onCloseEventCardEmitter.emit();
+  }
+
+  public onClickOtherEvent(): void {
+    if (this.availabilityToggleBtn == null) {
+      return;
+    }
+
+    this.availabilityToggleBtn.checked = false;
+    this.toggleAvailabilityOff.emit();
   }
 
   public onToggleAvailabilityCheck(toggleAvailabilityBtn: MatButtonToggle): void {
     if (this.assignedEvent.event == null) {
       return;
     }
+    this.isCheckingAvailability = true;
 
     if (!toggleAvailabilityBtn.checked) {
-      this.toggleAvailabilityOff.emit(this.assignedEvent.event);
+      this.toggleAvailabilityOff.emit();
     } else {
       this.toggleAvailabilityOn.emit(this.assignedEvent.event);
     }
+  }
+
+  public onDeleteEvent(): void {
+    this.onDeleteEventEmitter.emit(this.assignedEvent);
   }
 }

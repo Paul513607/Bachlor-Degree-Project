@@ -1,11 +1,13 @@
 package com.timetable.timetablebe.repos;
 
 import com.timetable.timetablebe.entities.AssignedEventEntity;
+import com.timetable.timetablebe.entities.EventEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface AssignedEventRepository extends JpaRepository<AssignedEventEntity, Long> {
@@ -28,4 +30,10 @@ public interface AssignedEventRepository extends JpaRepository<AssignedEventEnti
             "WHERE LOWER(resource.abbr) = LOWER(:roomAbbr) " +
             "ORDER BY assigned_event.day, assigned_event.time, resource.abbr")
     List<AssignedEventEntity> findAllByRoomAbbr(String roomAbbr);
+
+    Optional<AssignedEventEntity> findFirstByEvent(EventEntity event);
+
+    @Query(value = "SELECT assigned_event FROM AssignedEventEntity assigned_event " +
+            "ORDER BY assigned_event.day, assigned_event.time")
+    List<AssignedEventEntity> findAllOrderByDayAndTime();
 }

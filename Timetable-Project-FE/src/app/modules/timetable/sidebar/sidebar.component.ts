@@ -47,6 +47,7 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
   public selectedProfessor: DisplayEntity = {label: '', value: ''};
   public selectedRoom: DisplayEntity = {label: '', value: ''};
 
+  @Input()
   public unassignedEvents: TimetableEvent[] = [];
   public unassignedEventsDisplay: AssignedTimetableEvent[] = [];
 
@@ -120,7 +121,7 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
   private updateUnassignedEvents(): void {
     this.unassignedEventsDisplay = [];
     this.eventService.getAllUnassignedEvents()
-    .pipe(delay(5000))
+    .pipe(delay(2000))
     .subscribe(unassignedEvents => {
       unassignedEvents.forEach(unassignedEvent => {
         this.unassignedEventsDisplay.push({
@@ -157,7 +158,7 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
 
     this.resourceService.getAllRooms()
     .pipe(takeUntil(this.unsubscribe$))
-    .subscribe(rooms => {
+    .subscribe((rooms: any[]) => {
       rooms.forEach(room => {
         this.roomList.push(room);
         this.roomDisplayList.push({label: room.name, value: room.abbr});

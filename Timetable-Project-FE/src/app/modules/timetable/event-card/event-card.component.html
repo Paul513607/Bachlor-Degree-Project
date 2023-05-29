@@ -1,5 +1,5 @@
 <div class="event-card" 
-*ngIf="assignedEvent.event">
+*ngIf="assignedEvent && assignedEvent.event">
     <h3 class="card-title">{{ assignedEvent.event.name }}</h3>
     <mat-expansion-panel class="expansion-panel">
         <mat-expansion-panel-header>
@@ -39,21 +39,40 @@
             </span>
         </div>
     </mat-expansion-panel>
-    <div class="card-details"
-    *ngIf="assignedEvent.day !== null">
-        <span> Day: {{ dayNumberToNameMap.get(assignedEvent.day) }} </span>
-        <span> Time: {{ assignedEvent.time }} </span>
+    <div class="details-delete-container">
+        <div class="card-details"
+        *ngIf="assignedEvent.day !== null">
+            <span> Day: {{ dayNumberToNameMap.get(assignedEvent.day) }} </span>
+            <span> Time: {{ assignedEvent.time }} </span>
+        </div>
+        <div class="delete-button" *ngIf="assignedEvent.resource != null">
+            <button mat-raised-button color="warn"
+            class="card-delete-button" 
+            (click)="onDeleteEvent()">
+                Delete
+            </button>
+        </div>
     </div>
     <div class="card-bottom">
         <div
-        *ngIf="assignedEvent.resource == null">
+        *ngIf="assignedEvent.resource == null; else eventIsAssigned">
             <mat-button-toggle 
             class="card-unassigned-event-button"
             #toggleAvailabilityBtn
-            (change)="onToggleAvailabilityCheck(toggleAvailabilityBtn)">
+            (change)="onToggleAvailabilityCheck(toggleAvailabilityBtn)" 
+            id="availability-button">
                 <span class="card-unassigned-event-button-text">Availability</span>
             </mat-button-toggle>
         </div>
+        <ng-template #eventIsAssigned>
+            <mat-button-toggle 
+            class="card-assigned-event-button"
+            #toggleAvailabilityBtn
+            (change)="onToggleAvailabilityCheck(toggleAvailabilityBtn)"
+            id="availability-button-move">
+                <span class="card-unassigned-event-button-text">Availability</span>
+            </mat-button-toggle>
+        </ng-template>
         <div>
             <button mat-raised-button color="primary"
             class="card-close-button" 

@@ -12,7 +12,6 @@ import java.util.Optional;
 public interface StudentGroupRepository extends JpaRepository<StudentGroupEntity, Long> {
     @Query(value = "SELECT student_group " +
             "FROM StudentGroupEntity student_group " +
-            "WHERE student_group.memberCount > 0" +
             "ORDER BY student_group.abbr")
     List<StudentGroupEntity> findAllByOrderByAbbr();
 

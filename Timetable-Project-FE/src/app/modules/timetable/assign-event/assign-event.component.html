@@ -1,0 +1,55 @@
+<div>
+    <form>
+        <div class="under-form">
+            <div class="input-container">
+                <mat-form-field class="form-field">
+                    <mat-label class="form-label">Enter Hour: </mat-label>
+                    <input matInput type="number" [(ngModel)]="hour" name="hour" class="form-input">
+                </mat-form-field>
+                <mat-form-field class="form-field">
+                    <mat-label class="form-label">Enter Minute: </mat-label>
+                    <input matInput type="number" [(ngModel)]="minute" name="minute" class="form-input">
+                </mat-form-field>
+            </div>
+            <div class="select-container">
+                <mat-form-field class="form-field">
+                    <mat-label class="form-label">Select Day: </mat-label>
+                    <mat-select [(ngModel)]="selectedDay" name="selectedDay" class="form-select"
+                    (selectionChange)="getAvailableRooms()">
+                        <mat-option *ngFor="let day of days" [value]="day">
+                            {{day}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field class="form-field" *ngIf="availableRooms.length > 0">
+                    <mat-label class="form-label">Select Room: </mat-label>
+                    <mat-select [(ngModel)]="selectedRoom" name="selectedRoom" class="form-select">
+                        <mat-option *ngFor="let room of availableRooms" [value]="room">
+                            {{room.name}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div *ngIf="isOverlap" class="overlap-message-container">
+                <span>Warning: This assignment may overlap with another.</span>
+            </div>
+            <button mat-raised-button color="primary" (click)="assignEvent()" class="assign-btn">Assign</button>
+        </div>
+        <!-- <label>Enter Hour</label>
+        <input type="number"  [(ngModel)]="hour">
+        <label>Enter Minute</label>
+        <input type="number" [(ngModel)]="minute">
+        <mat-select>
+            <mat-option *ngFor="let day of days" [value]="day">
+                {{day}}
+            </mat-option>
+        </mat-select>
+        <mat-select>
+            <mat-option *ngFor="let room of availableRooms" [value]="room">
+                {{room.name}}
+            </mat-option>
+        </mat-select>
+        <div *ngIf="isOverlap" class="overlab-div">Warning: This assignment may overlap with another.</div>
+        <button (click)="assignEvent()">Assign</button> -->
+    </form>
+</div>

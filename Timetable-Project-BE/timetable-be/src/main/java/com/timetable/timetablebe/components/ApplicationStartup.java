@@ -14,6 +14,9 @@ import org.timetable.pojo.Group;
 import org.timetable.pojo.Prof;
 import org.timetable.pojo.Timetable;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +24,11 @@ import java.util.Map;
 import java.util.Optional;
 
 import static org.timetable.Main.loadTimetable;
-import static org.timetable.Main.roomOnlyColoring;
 
 @Component
-public class ApplicationStartup implements ApplicationRunner {
+public class ApplicationStartup implements ApplicationRunner, ApplicationStartupBase {
     public static final String XML_FILEPATH = "src/main/resources/data/export_2022-2023_semestrul_1.xml";
-    private final String DEFAULT_ALGORITHM_OPTION = "1";
+    public static File XML_FILE = new File(XML_FILEPATH);
 
     @Autowired
     private AssignedEventRepository assignedEventRepo;
@@ -38,6 +40,8 @@ public class ApplicationStartup implements ApplicationRunner {
     private StudentGroupRepository studentGroupRepo;
     @Autowired
     private ProfessorRepository professorRepo;
+    @Autowired
+    private TimetableFileRepository timetableFileRepo;
 
     @Autowired
     private ModelMapper mapper;
@@ -73,8 +77,21 @@ public class ApplicationStartup implements ApplicationRunner {
     }
 
     @Override
-    public void run(ApplicationArguments args) throws Exception {
-        Timetable timetable = loadTimetable(XML_FILEPATH);
+    public void initializeDatabase() throws IOException {
+        List<TimetableFileEntity> timetableFileEntities = timetableFileRepo.findAll();
+
+        if (timetableFileEntities.isEmpty()) {
+            File file = new File(XML_FILEPATH);
+            TimetableFileEntity timetableFileEntity = new TimetableFileEntity();
+            timetableFileEntity.setFile(file);
+            timetableFileEntity.setName(file.getName());
+            timetableFileEntity.setTimestampAdded(System.currentTimeMillis());
+            timetableFileRepo.save(timetableFileEntity);
+
+            XML_FILE = file;
+        }
+
+        Timetable timetable = loadTimetable(Files.readAllBytes(XML_FILE.toPath()));
         assignedEventRepo.deleteAll();
         resourceRepo.deleteAll();
         studentGroupRepo.deleteAll();
@@ -136,5 +153,10 @@ public class ApplicationStartup implements ApplicationRunner {
         eventRepo.saveAll(eventEntities);
         studentGroupRepo.saveAll(studentGroupEntities);
         professorRepo.saveAll(professorEntities);
+    }
+
+    @Override
+    public void run(ApplicationArguments args) throws Exception {
+        initializeDatabase();
     }
 }

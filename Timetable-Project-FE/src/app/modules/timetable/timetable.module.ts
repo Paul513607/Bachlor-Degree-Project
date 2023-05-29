@@ -8,11 +8,14 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { TimetableRoutingModule } from './timetable-routing.module';
 import { SidebarComponent } from './sidebar/sidebar.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { EventCardComponent } from './event-card/event-card.component';
+import { AssignEventComponent } from './assign-event/assign-event.component';
+import { FileTransferComponent } from './file-transfer/file-transfer.component';
 
 
 
@@ -22,6 +25,8 @@ import { EventCardComponent } from './event-card/event-card.component';
     TimetableComponent,
     SidebarComponent,
     EventCardComponent,
+    AssignEventComponent,
+    FileTransferComponent,
   ],
   imports: [
     CommonModule,
@@ -35,6 +40,7 @@ import { EventCardComponent } from './event-card/event-card.component';
     MatCardModule,
     MatButtonToggleModule,
     MatIconModule,
+    MatInputModule,
   ]
 })
 export class TimetableModule { }

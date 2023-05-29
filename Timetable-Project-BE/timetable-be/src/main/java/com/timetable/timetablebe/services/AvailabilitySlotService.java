@@ -1,6 +1,5 @@
 package com.timetable.timetablebe.services;
 
-import com.timetable.timetablebe.controllers.AvailabilitySlotController;
 import com.timetable.timetablebe.dtos.AvailabilitySlotDto;
 import com.timetable.timetablebe.dtos.EventDto;
 import com.timetable.timetablebe.dtos.ResourceDto;
@@ -40,27 +39,36 @@ public class AvailabilitySlotService {
     @Autowired
     private ModelMapper modelMapper;
 
-    private Set<ResourceEntity> filterResources(EventEntity eventEntity, int day, LocalTime time,
-                                                Set<ResourceEntity> resources,
-                                                List<AssignedEventEntity> assignedEvents) {
-        assignedEvents = assignedEvents.stream()
+    private boolean checkIfAvailable(EventEntity eventEntity, int day, LocalTime time,
+                                     List<AssignedEventEntity> assignedEventsToFilter) {
+        List<AssignedEventEntity> assignedEvents = assignedEventsToFilter.stream()
                 .filter(assignedEvent -> assignedEvent.getDay() == day)
                 .filter(assignedEvent -> assignedEvent.getTime().equals(time))
                 .collect(Collectors.toList());
 
-        // filter the resources (rooms) based on the student groups and professors of the current event
+        // check if the current event is not assigned to the same group or professor
         for (AssignedEventEntity assignedEvent : assignedEvents) {
             for (StudentGroupEntity studentGroup : assignedEvent.getEvent().getStudentGroups()) {
                 if (eventEntity.getStudentGroups().contains(studentGroup)) {
-                    return new HashSet<>();
+                    return false;
                 }
             }
             for (ProfessorEntity professor : assignedEvent.getEvent().getProfessors()) {
                 if (eventEntity.getProfessors().contains(professor)) {
-                    return new HashSet<>();
+                    return false;
                 }
             }
         }
+        return true;
+    }
+
+    private Set<ResourceEntity> filterResources(EventEntity eventEntity, int day, LocalTime time,
+                                                Set<ResourceEntity> resources,
+                                                List<AssignedEventEntity> assignedEventsToFilter) {
+        List<AssignedEventEntity> assignedEvents = assignedEventsToFilter.stream()
+                .filter(assignedEvent -> assignedEvent.getDay() == day)
+                .filter(assignedEvent -> assignedEvent.getTime().equals(time))
+                .collect(Collectors.toList());
 
         // get the current resources (rooms) from the assigned events
         Set<ResourceEntity> currentEventResources = assignedEvents.stream()
@@ -91,14 +99,16 @@ public class AvailabilitySlotService {
         List<AvailabilitySlotDto> availabilitySlots = new ArrayList<>();
 
         for (int day = 0; day < 6; day++) {
-            for (LocalTime time = START_TIME; time.isBefore(END_TIME); time = time.plusHours(GENERAL_DURATION)) {
+            for (LocalTime time = START_TIME; time.isBefore(END_TIME); time = time.plusHours(1)) {
+                boolean isAvailable = checkIfAvailable(eventEntity, day, time, assignedEvents);
                 Set<ResourceEntity> availableRoomsSet =
                         filterResources(eventEntity, day, time, resources, assignedEvents);
                 List<ResourceDto> availableRooms = availableRoomsSet.stream()
                         .map(resource -> modelMapper.map(resource, ResourceDto.class))
                         .sorted(Comparator.comparing(ResourceDto::getName))
                         .toList();
-                availabilitySlots.add(new AvailabilitySlotDto(availableRooms, day, time));
+                isAvailable = isAvailable && !availableRooms.isEmpty();
+                availabilitySlots.add(new AvailabilitySlotDto(isAvailable, availableRooms, day, time));
             }
         }
         return availabilitySlots;

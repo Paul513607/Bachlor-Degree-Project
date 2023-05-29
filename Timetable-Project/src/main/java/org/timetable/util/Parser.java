@@ -9,6 +9,7 @@ import org.timetable.pojo.Timetable;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 @Getter
 @Setter
@@ -26,6 +27,16 @@ public class Parser {
         xmlMapper.registerModule(new JavaTimeModule());
         File file = new File(this.fileToParsePath);
         this.timetable = xmlMapper.readValue(file, Timetable.class);
+    }
+
+    public void parse(InputStream inputStream) {
+        XmlMapper xmlMapper = new XmlMapper();
+        xmlMapper.registerModule(new JavaTimeModule());
+        try {
+            this.timetable = xmlMapper.readValue(inputStream, Timetable.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void setLinksForTimetable() {

@@ -1,0 +1,72 @@
+.file-transfer {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin: 10px;
+}
+
+.file-manage-form {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    margin: 10px;
+}
+
+.filename-select-container {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    margin: 10px;
+}
+
+.form-field {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin: 10px;
+}
+
+.file-upload-button, .file-download-button, .file-submit-selected {
+    width: 100%;
+    height: 3em;
+    font-size: 16px;
+    margin-bottom: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+}
+
+.file-select {
+    border: 1px solid gray;
+    width: 12em;
+}
+
+.file-upload-button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.file-download-button {
+    background-color: #008CBA;
+    color: white;
+}
+
+.delete-file-icon:hover {
+    background-color: rgba(255, 0, 0, 0.5);
+}
+
+.file-option {
+    font-size: 10px;
+    text-overflow: ellipsis;
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
+#successful-upload, #successful-download, #timetable-file-change {
+    text-align: center;
+    color: green;
+    font-size: 16px;
+    display: none;
+}

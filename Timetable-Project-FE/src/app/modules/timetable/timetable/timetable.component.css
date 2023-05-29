@@ -13,90 +13,119 @@
     justify-content: center;
     align-items: center;
     flex-direction: column;
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin: 30px;
     width: 100%;
+    border: 1px solid black;
 }
 
-.timetable table {
-    border-collapse: collapse;
+.thead-cell {
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
     border: 1px solid black;
-    width: 95%;
+    box-sizing: border-box;
 }
 
-.timetable table td {
+.tbody-row-header {
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
     border: 1px solid black;
-    padding: 5px;
-    width: 3em;
-    height: 6em;
+    box-sizing: border-box;
 }
 
-.timetable table th {
-    border: 1px solid black;
-    padding: 5px;
-    width: 3em;
-    height: 6em;
+.event-card-cell {
+    text-align: center;
+    padding: 0;
+    border: 1px solid rgba(128, 128, 128, 0.5);;
+    box-sizing: border-box;
+    height: 100% !important;
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+}
+
+.event-card-cell::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.5);;
+    z-index: 0;
+}
+
+.cell-top, .cell-bottom {
+    border: 1px solid lightgray;
+    padding: 0;
+    height: 50%;
+}
+
+.cell-top {
+    border-bottom: none;
+}
+
+.card-content-wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.timetable-card {
+    width: 100%;
+    flex-grow: 1;
+    height: 100% !important;
+    word-wrap: break-word;
+}
+
+.timetable-mat-card {
+    word-wrap: break-word;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(128, 128, 128, 0.5);
+}
+
+.mat-card-title {
+    font-size: 12px;
+    font-weight: bold;
+    word-wrap: break-word;
+}
+
+.mat-card-subtitle {
+    word-wrap: break-word;
+    font-size: 12px;
 }
 
 .current-event-card {
     margin: 20px;
 }
 
-.mat-card-title {
-    font-size: 16px;
-    font-weight: bold;
+.main-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 100%;
 }
 
-.mat-card-subtitle {
-    font-size: 12px;
+.under {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    width: 100%;
 }
 
 @media screen and (max-width: 600px) {
-    .timetable table {
-        width: 100%;
-    }
-
-    .timetable table td {
-        width: 2em;
-        height: 4em;
-    }
-
-    .timetable table th {
-        width: 2em;
-        height: 4em;
-    }
+    
 }
 
 @media screen and (max-width: 400px) {
-    .timetable table {
-        width: 100%;
-    }
-
-    .timetable table td {
-        width: 1.5em;
-        height: 3em;
-    }
-
-    .timetable table th {
-        width: 1.5em;
-        height: 3em;
-    }
-}
-
-@media screen and (max-width: 300px) {
-    .timetable table {
-        width: 100%;
-    }
-
-    .timetable table td {
-        width: 1em;
-        height: 2em;
-    }
-
-    .timetable table th {
-        width: 1em;
-        height: 2em;
-    }
+    
 }
 
 

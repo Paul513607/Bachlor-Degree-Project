@@ -1,9 +1,15 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, Observable, Subject, lastValueFrom, takeUntil } from 'rxjs';
 import { AssignedTimetableEvent, emptyAssignedTimetableEvent } from 'src/app/model/assigned-timetable-event';
 import { TimetableEvent } from 'src/app/model/timetable-event';
 import { TimetableService } from 'src/app/services/timetable.service';
+import { RowSpanCalculator, Span } from '../../../util/rowspan-calculator';
+import { AvailabilitySlotService } from 'src/app/services/availability-slot.service';
+import { AvailabilitySlot } from 'src/app/model/availability-slot';
+import { Resource } from 'src/app/model/resource';
+import { EventService } from 'src/app/services/event.service';
 
 @Component({
   selector: 'app-timetable',
@@ -11,11 +17,11 @@ import { TimetableService } from 'src/app/services/timetable.service';
   styleUrls: ['./timetable.component.css']
 })
 export class TimetableComponent implements OnInit, OnDestroy {
-  START_TIME: number = 8;
+  START_TIME: number = 7;
   END_TIME: number = 20;
   GENERAL_CLASS_DURATION: number = 2;
 
-  public days: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  public days: string[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   private daysToValues: Map<string, number> = new Map<string, number>([
     ['Mon', 0],
     ['Tue', 1],
@@ -30,6 +36,11 @@ export class TimetableComponent implements OnInit, OnDestroy {
   public assignedEvents$: Observable<AssignedTimetableEvent[]> = new Observable<AssignedTimetableEvent[]>();
   public assignedEvents: AssignedTimetableEvent[] = [];
 
+  public columnsToDisplay: string[] = ['rowClassTime', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  public columnsWithoutFirst: string[] = [];
+  public timetableData: any[] = [];
+  public rowSpans: Array<Span[]> = [];
+
   public unsubscribe$: Subject<void> = new Subject<void>();
 
   public selectedAlgorithmOption: string = '';
@@ -38,21 +49,48 @@ export class TimetableComponent implements OnInit, OnDestroy {
   public selectedRoom: string = '';
 
   public currentAssignedEvent: AssignedTimetableEvent = emptyAssignedTimetableEvent;
+  public currentEventAvailabilitySlots: AvailabilitySlot[] = [];
 
-  public dayToEventsMap$: Observable<Map<string, AssignedTimetableEvent[]>> = new Observable<Map<string, AssignedTimetableEvent[]>>();
-  public dayToEventsMap: Map<string, AssignedTimetableEvent[]> = new Map<string, AssignedTimetableEvent[]>();
+  public DEFAULT_CELL_COLOR: string = 'rgba(255, 255, 255)';
+  public UNAVAILABLE_CELL_COLOR: string = 'rgba(255, 0, 0, 0.5)';
+  public AVAILABLE_CELL_COLOR: string = 'rgba(0, 255, 0, 0.5)';
+  public cellToColorMatrix = new Array<Array<string>>();
+
+  public checkingAvailability: boolean = false;
+  public currentEventRooms: Resource[] = [];
+  public isAssignmentOverlap: boolean = false;
+
+  public unassignedEvents: TimetableEvent[] = [];
 
   constructor(
     private timetableService: TimetableService,
+    private eventService: EventService,
+    private availabilitySlotService: AvailabilitySlotService,
     private router: Router,
     private readonly activatedRoute: ActivatedRoute
-  ) {}
+  ) {
+    this.columnsWithoutFirst = this.columnsToDisplay.slice(1);
+
+    for (let hour: number = this.START_TIME; hour < this.END_TIME; hour += 1) {
+      let classTime: string = hour.toString();
+      const currentRow: any = { rowClassTime: classTime };
+      let dayIdx: number = 0;
+      this.cellToColorMatrix.push(new Array<string>());
+      for (const day of this.days) {
+        currentRow[day] = emptyAssignedTimetableEvent;
+        this.cellToColorMatrix[hour - this.START_TIME][dayIdx] = this.DEFAULT_CELL_COLOR;
+        dayIdx++;
+      }
+      this.timetableData.push(currentRow);
+    }
+
+    const rowSpanCalculator: RowSpanCalculator = new RowSpanCalculator();
+    this.rowSpans = rowSpanCalculator.calculateSpans(this.timetableData, this.columnsToDisplay);
+
+    console.log(this.cellToColorMatrix);
+  }
 
   ngOnInit(): void {
-    for (let hour: number = this.START_TIME; hour < this.END_TIME; hour += this.GENERAL_CLASS_DURATION) {
-      let classTime = hour.toString() + ":00" + "-" + (hour + 2).toString() + ":00";
-      this.classTimes.push(classTime);
-    }
   }
 
   ngOnDestroy(): void {
@@ -94,7 +132,15 @@ export class TimetableComponent implements OnInit, OnDestroy {
     if (this.selectedAlgorithmOption !== '') {
       this.getAssignedEventsByAlgorithmOption();
     }
+
     console.log("Done generating");
+  }
+
+  private updateUnassignedEvents(): void {
+    this.eventService.getAllUnassignedEvents()
+    .subscribe((unassignedEvents: TimetableEvent[]) => {
+      this.unassignedEvents = unassignedEvents;
+    });
   }
 
   public getAssignedEventsByAlgorithmOption(): void {
@@ -105,6 +151,7 @@ export class TimetableComponent implements OnInit, OnDestroy {
     this.timetableService.getAllAssignedEventsWithAlgorithm(this.selectedAlgorithmOption)
     .subscribe((assignedEvents: AssignedTimetableEvent[]) => {
       this.assignedEvents = assignedEvents;
+      this.updateUnassignedEvents();
       console.log(this.assignedEvents);
     });
   }
@@ -128,70 +175,213 @@ export class TimetableComponent implements OnInit, OnDestroy {
     this.assignedEvents$
     .subscribe((assignedEvents: AssignedTimetableEvent[]) => {
       this.assignedEvents = assignedEvents;
-      this.dayToEventsMap$ = this.addEventsToMap(this.assignedEvents);
+      this.addEventsToTimetableData(this.assignedEvents);
     });
   }
 
-  private addEventsToMap(assignedEvents: AssignedTimetableEvent[]): Observable<Map<string, AssignedTimetableEvent[]>> {
-    let dayToAssignedEventsMap: Map<string, AssignedTimetableEvent[]> = new Map<string, AssignedTimetableEvent[]>();
+  private addEventsToTimetableData(assignedEvents: AssignedTimetableEvent[]): void {
     console.log(assignedEvents);
+    this.timetableData = [];
+    this.cellToColorMatrix = [];
 
-    for (const day of this.days) {
-      let currentDayEvents: AssignedTimetableEvent[] = [];
-      for (let hour: number = this.START_TIME; hour < this.END_TIME; hour += this.GENERAL_CLASS_DURATION) {
-        currentDayEvents.push(emptyAssignedTimetableEvent);
+    for (let hour = this.START_TIME; hour < this.END_TIME; hour += 1) {
+      const classTime: string = hour.toString();
+      const currentRow: any = { rowClassTime: classTime };
+      this.cellToColorMatrix.push(new Array<string>());
+      let dayIdx: number = 0;
+      for (const day of this.days) {
+        let currentAssignedEvent: AssignedTimetableEvent = this.getAssignedEventByDayAndTime(day, hour, assignedEvents);
+        currentRow[day] = currentAssignedEvent;
+        this.cellToColorMatrix[hour - this.START_TIME][dayIdx] = this.DEFAULT_CELL_COLOR;
+        dayIdx++;
       }
-      dayToAssignedEventsMap.set(day, currentDayEvents);
+      this.timetableData.push(currentRow);
     }
 
-    for (let day of this.days) {
-      for (let assignedEvent of assignedEvents) {
-        const dayValue = this.daysToValues.get(day);
-
-        if (assignedEvent.day === dayValue) {
-          let currentSlotIndex: number = this.getCurrentSlotIndex(day, assignedEvent.time);
-
-          if (currentSlotIndex !== -1) {
-            dayToAssignedEventsMap.get(day)![currentSlotIndex] = assignedEvent;   
-          }
-        }
-      }
-    }
-
-    console.log(dayToAssignedEventsMap);
-    return new BehaviorSubject<Map<string, AssignedTimetableEvent[]>>(dayToAssignedEventsMap).asObservable();
+    // update spans
+    this.rowSpans = [];
+    const rowSpanCalculator = new RowSpanCalculator();
+    this.rowSpans = rowSpanCalculator.calculateSpans(this.timetableData, this.columnsToDisplay);
+    console.log(this.rowSpans);
+    console.log(this.timetableData);
   }
 
-  private getCurrentSlotIndex(day: string, time: string | null): number {
-    if (time === null) {
-      return -1;
+  public getRowSpan(element: any, rowIdx: number, colIdx: number): number {
+    return this.rowSpans[rowIdx][colIdx].span;
+  }
+
+  public isHalfHourEvent(assignedEvent: AssignedTimetableEvent): boolean {
+    if (assignedEvent.time === null) {
+      return false;
     }
 
-    let currentSlotIndex: number = 0;
-    const currentHour: number = parseInt(time.split(":")[0]);
-    for (let hour: number = this.START_TIME; hour < this.END_TIME; hour += this.GENERAL_CLASS_DURATION) {
-      if (currentHour === hour) {
-        return currentSlotIndex;
-      }
-      currentSlotIndex++; 
+    const assignedEventMinute: number = parseInt(assignedEvent.time.split(":")[0]);
+    if (assignedEventMinute === 30) {
+      return true;
     }
-    return -1;
+    return false;
+  }
+
+  private getAssignedEventByDayAndTime(day: string, hour: number, 
+                    assignedEvents: AssignedTimetableEvent[]): AssignedTimetableEvent {
+    for (let assignedEvent of assignedEvents) {
+      if (assignedEvent.time == null) {
+        continue;
+      }
+
+      const assignedEventHour: number = parseInt(assignedEvent.time.split(":")[0]);
+      if (assignedEvent.day === this.daysToValues.get(day) && assignedEventHour === hour) {
+        return assignedEvent;
+      }
+    }
+    return emptyAssignedTimetableEvent;
   }
 
   public updateCurrentAssignedEvent(assignedEvent: AssignedTimetableEvent): void {
     this.currentAssignedEvent = assignedEvent;
+    this.toggleAvailabilityFalse();
   }
 
   public displayUnassignedEvent(currentEvent: AssignedTimetableEvent): void {
     this.currentAssignedEvent = currentEvent;
+    this.toggleAvailabilityFalse();
+  }
+
+  public closeEventCard(): void {
+    this.currentEventAvailabilitySlots = [];
+    this.toggleAvailabilityFalse();
   }
 
   public toggleAvailabilityTrue(event: TimetableEvent): void {
-    console.log(event);
+    this.checkingAvailability = true;
+    this.currentEventAvailabilitySlots = [];
+
+    this.availabilitySlotService.getAvailabilitySlotsByEvent(event)
+    .subscribe((availabilitySlots: AvailabilitySlot[]) => {
+      console.log(availabilitySlots);
+      this.currentEventAvailabilitySlots = availabilitySlots;
+
+      for (let hour = this.START_TIME; hour < this.END_TIME; hour += 1) {
+        let dayIdx: number = 0;
+        for (const day of this.days) {
+          let currentAvailabilitySlot: AvailabilitySlot | null = this.getAvailabilitySlotByDayAndTime(day, hour);
+          if (currentAvailabilitySlot == null) {
+            continue;
+          }
+
+          if (this.cellToColorMatrix[hour - this.START_TIME][dayIdx] === this.DEFAULT_CELL_COLOR) {
+            console.log(currentAvailabilitySlot);
+            if (!currentAvailabilitySlot.available) {
+              this.cellToColorMatrix[hour - this.START_TIME][dayIdx] = this.UNAVAILABLE_CELL_COLOR;
+
+              let nextRow: number = hour + 1;
+              for (let i = 1; i < event.duration; i++) {
+                this.cellToColorMatrix[nextRow - this.START_TIME][dayIdx] = this.UNAVAILABLE_CELL_COLOR;
+                nextRow++;
+              }
+
+            } else {
+              this.cellToColorMatrix[hour - this.START_TIME][dayIdx] = this.AVAILABLE_CELL_COLOR;
+            }
+          }
+          dayIdx++;
+        }
+      }
+    });
   }
 
-  public toggleAvailabilityFalse(event: TimetableEvent): void {
-    console.log(event);
+  public toggleAvailabilityFalse(): void {
+    this.checkingAvailability = false;
+    this.isAssignmentOverlap = false;
+    this.currentEventAvailabilitySlots = [];
 
+    for (let hour = this.START_TIME; hour < this.END_TIME; hour += 1) {
+      let dayIdx: number = 0;
+      for (const day of this.days) {
+        this.cellToColorMatrix[hour - this.START_TIME][dayIdx] = this.DEFAULT_CELL_COLOR;
+        dayIdx++;
+      }
+    }
+
+    this.currentEventRooms = [];
+  }
+
+  public getCellColor(event: AssignedTimetableEvent, rowIdx: number, colIdx: number): string {
+    let color: string = this.DEFAULT_CELL_COLOR;
+    const colorOpt: string | undefined = this.cellToColorMatrix[rowIdx][colIdx];
+    if (colorOpt != null) {
+      color = colorOpt;
+    }
+    return color;
+  }
+
+  private getAvailabilitySlotByDayAndTime(day: string, hour: number): AvailabilitySlot | null {
+    for (let availabilitySlot of this.currentEventAvailabilitySlots) {
+      const availabilitySlotHour: number = parseInt(availabilitySlot.time.split(":")[0]);
+      if (availabilitySlot.day === this.daysToValues.get(day) && availabilitySlotHour === hour) {
+        return availabilitySlot;
+      }
+    }
+    return null;
+  }
+
+  public getRoomsForDayAndTime(timeslot: any): void {
+    let day: string = timeslot.day;
+    let hour: number = timeslot.hour;
+    let minute: number = timeslot.minute;
+
+    const currentAvailabilitySlot: AvailabilitySlot | null = this.getAvailabilitySlotByDayAndTime(day, hour);
+    if (currentAvailabilitySlot == null) {
+      this.currentEventRooms = [];
+      return;
+    }
+
+    this.currentEventRooms = currentAvailabilitySlot.rooms;
+    this.isAssignmentOverlap = !currentAvailabilitySlot.available;
+  }
+
+  public assignEvent(newAssignedEvent: AssignedTimetableEvent): void {
+    console.log(newAssignedEvent);
+    if (this.currentAssignedEvent.resource == null) {
+      this.timetableService.createAssignedEvent(newAssignedEvent)
+      .subscribe(() => {
+        this.updateTimetable();
+        this.closeEventCard();
+        this.currentAssignedEvent = emptyAssignedTimetableEvent;
+        this.updateUnassignedEvents();
+      });
+    } else {
+      this.timetableService.updateAssignedEvent(newAssignedEvent)
+      .subscribe(() => {
+        this.updateTimetable();
+        this.closeEventCard();
+        this.currentAssignedEvent = emptyAssignedTimetableEvent;
+      });
+    }
+  }
+
+  public updateTimetable(): void {
+    if (this.selectedStudentGroup !== '') {
+      this.getAssignedEventsByStudentGroup();
+    } else if (this.selectedProfessor !== '') {
+      this.getAssignedEventsByProfessor();
+    } else if (this.selectedRoom !== '') {
+      this.getAssignedEventsByRoom();
+    } else {
+      this.getAssignedEventsByAlgorithmOption();
+    }
+  }
+
+  public deleteEvent(eventToDelete: AssignedTimetableEvent): void {
+    this.timetableService.getIdForAssignedEvent(eventToDelete)
+    .subscribe((id: number) => {
+      this.timetableService.deleteAssignedEvent(id)
+      .subscribe(() => {
+        this.updateTimetable();
+        this.closeEventCard();
+        this.currentAssignedEvent = emptyAssignedTimetableEvent;
+        this.updateUnassignedEvents();
+      });
+    });
   }
 }

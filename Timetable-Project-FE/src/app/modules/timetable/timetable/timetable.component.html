@@ -1,57 +1,85 @@
-<div class="main">
-  <div class="sidebar">
-    <app-sidebar 
-      (onChageSelectedAlgorithm)="onChageSelectedAlgorithm($event)"
+<div class="main-page"> 
+  <div class="above">
+    <app-file-transfer></app-file-transfer>
+  </div>
+  <div class="main">
+    <div class="sidebar">
+      <app-sidebar 
+        [unassignedEvents]="unassignedEvents"
+        (onChageSelectedAlgorithm)="onChageSelectedAlgorithm($event)"
 
-      (onChangeSelectedStudentGroup)="onChangeStudentGroup($event)"
-      (onChangeSelectedProfessor)="onChangeProfessor($event)"
-      (onChangeSelectedRoom)="onChangeRoom($event)" 
-      
-      (onClickGenerateTimetable)="onGenerateTimetable()"
-      (onClickEventCard)="displayUnassignedEvent($event)"
-    ></app-sidebar>
-  </div>
-  <div class="timetable">
-    <table>
-      <thead>
-          <th></th> <!-- empty cell -->
-          <ng-container *ngFor="let classTime of classTimes">
-              <th>{{ classTime }}</th>
-          </ng-container>
-      </thead>
-      <tbody>
+        (onChangeSelectedStudentGroup)="onChangeStudentGroup($event)"
+        (onChangeSelectedProfessor)="onChangeProfessor($event)"
+        (onChangeSelectedRoom)="onChangeRoom($event)" 
+        
+        (onClickGenerateTimetable)="onGenerateTimetable()"
+        (onClickEventCard)="displayUnassignedEvent($event)"
+      ></app-sidebar>
+    </div>
+    <div class="timetable">
+      <table mat-table [dataSource]="timetableData" class="mat-elevation-z8" class=".mat-table">
+        <ng-container matColumnDef="rowClassTime">
+          <th mat-header-cell *matHeaderCellDef class="theader-cell"></th>
+          <td mat-cell *matCellDef="let element" class="tbody-row-header"> {{ element.rowClassTime }} </td>
+        </ng-container>
+
+        <ng-container *ngFor="let day of days; let colIdx = index" [matColumnDef]="day">
+          <th mat-header-cell *matHeaderCellDef class="thead-cell"> {{ day }} </th>
+          <td mat-cell
+          *matCellDef="let element; let rowIdx = index"
+          [attr.rowspan]="getRowSpan(element, rowIdx, colIdx)"
+          [style.display]="getRowSpan(element, rowIdx, colIdx) == 0 ? 'none' : ''"
+          [style.background-color]="getCellColor(element, rowIdx, colIdx)"
+          class="event-card-cell">
+              <ng-container
+              *ngIf="element[day].event != null && element[day].resource != null">
+                <div class="card-content-wrapper">
+                  <div class="timetable-card">
+                    <mat-card class="timetable-mat-card"
+                    (click)="updateCurrentAssignedEvent(element[day])">
+                      <mat-card-title class="mat-card-title"> 
+                        {{ element[day].event.name }} 
+                      </mat-card-title>
+                      <mat-card-subtitle class="mat-card-subtitle"> 
+                        {{ element[day].resource.name }} 
+                      </mat-card-subtitle>
+                    </mat-card>
+                  </div>
+                </div>
+              </ng-container>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnsToDisplay">
+          <th mat-header-cell *matHeaderCellDef></th>
           <ng-container *ngFor="let day of days">
-              <tr>
-                <th>{{ day }}</th>
-                <ng-container *ngIf="dayToEventsMap$ | async as dayToEventsMap">
-                <ng-container *ngFor="let assignedEvent of dayToEventsMap.get(day)">
-                  <td> 
-                    <div class="timetable-card" 
-                    *ngIf="assignedEvent.event && assignedEvent.resource">
-                      <mat-card (click)="updateCurrentAssignedEvent(assignedEvent)">
-                        <mat-card-title class="mat-card-title"> 
-                          {{ assignedEvent.event.name }} 
-                        </mat-card-title>
-                        <mat-card-subtitle class="mat-card-subtitle"> 
-                          {{ assignedEvent.resource.name }} 
-                        </mat-card-subtitle>
-                      </mat-card>
-                    </div>
-                    <ng-template #emptyCard>
-                      <div class="timetable-card"></div>
-                    </ng-template>
-                  </td>
-                </ng-container>
-                </ng-container>
-              </tr>
+            <th mat-header-cell *matHeaderCellDef> {{ day }} </th>
           </ng-container>
-      </tbody>
-    </table>
+        </tr>
+        <tr mat-row *matRowDef="let row; columns: columnsToDisplay"></tr>
+      </table>
+    </div>
+    <div class="current-event-card">
+      <app-event-card 
+        [assignedEvent]="currentAssignedEvent"
+        [isCheckingAvailability]="checkingAvailability"
+        (onCloseEventCardEmitter)="closeEventCard()"
+        (toggleAvailabilityOn)="toggleAvailabilityTrue($any($event))"
+        (toggleAvailabilityOff)="toggleAvailabilityFalse()"
+
+        (onDeleteEventEmitter)="deleteEvent($event)"
+      ></app-event-card>
+    </div>
   </div>
-  <div class="current-event-card">
-    <app-event-card 
-      [assignedEvent]="currentAssignedEvent"
-      (toggleAvailabilityOn)="toggleAvailabilityTrue($any($event))"
-      (toggleAvailabilityOff)="toggleAvailabilityFalse($any($event))"
-    ></app-event-card>
+  <div class="under">
+    <div class="assign-event-container" *ngIf="checkingAvailability">
+      <app-assign-event
+      [currentEventToAssign]="currentAssignedEvent"
+      [availableRooms]="currentEventRooms"
+      [isOverlap]="isAssignmentOverlap"
+      (getTimeslotRooms)="getRoomsForDayAndTime($event)"
+      (onAssignEvent)="assignEvent($event)"
+      ></app-assign-event>
+    </div>
+  </div>
 </div>

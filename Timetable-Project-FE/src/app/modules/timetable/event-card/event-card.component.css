@@ -6,6 +6,7 @@
     width: 200px;
     box-sizing: border-box;
     border: 1px solid black;
+    word-wrap: break-word;
 }
 
 .card-title {
@@ -43,7 +44,7 @@
     float: right;
 }
 
-.card-unassigned-event-button {
+.card-unassigned-event-button .card-assigned-event-button {
     height: 90%;
     align-self: flex-start;
 }
@@ -60,3 +61,23 @@
 .event-notes, .room-notes {
     overflow: scroll;
 }
+
+.details-delete-container {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    margin: 2px;
+}
+
+.delete-button {
+    font-size: 12px;
+    height: 90%;
+}
+
+.card-delete-button {
+    font-size: 12px;
+    color: white;
+    height: 100%;
+    background-color: rgba(255, 0, 0, 0.5);
+}
+

@@ -1,0 +1,48 @@
+<div class="file-transfer">
+    <form>
+        <div class="file-manage-form">
+            <div class="form-field">
+                <button type="button" mat-raised-button (click)="fileUploadInput.click()" class="file-upload-button">
+                    <mat-icon>file_upload</mat-icon>    
+                    Choose XML File to Upload
+                </button>
+                <input hidden (change)="onSelectUploadFile($event)" #fileUploadInput type="file" accept="text/xml" 
+                [(ngModel)]="selectedFile" name="selectedFile"> 
+            </div>
+            <div class="form-field">
+                <button type="button" mat-raised-button (click)="downloadCurrentConfiguration()" class="file-download-button">
+                    <mat-icon>download</mat-icon>
+                    Download Current Configuration
+                </button>
+            </div>
+        </div>
+        <div id="successful-upload">
+            Upload Successful!
+        </div>
+        <div id="successful-download">
+            Download Successful!
+        </div>
+        <div class="filename-select-container">
+            <div class="form-field">
+                <mat-form-field>
+                    <mat-select placeholder="Select File" class="file-slect" [(ngModel)]="selectedFileName" name="selectedFileName">
+                        <mat-option *ngFor="let fileName of timetableFileNames" 
+                        [value]="fileName"
+                        class="file-option">
+                            <mat-icon (click)="deleteFile(fileName)" class="delete-file-icon">cancel</mat-icon>
+                            <div class="file-option-text"> {{ fileName }} </div>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
+            <div class="form-field">
+                <button type="button" mat-raised-button (click)="useSelectedFile()" class="file-submit-selected">
+                    Use Selected File
+                </button>
+            </div>
+        </div>
+        <div id="timetable-file-change">
+            Timetable File Changed!
+        </div>
+    </form>
+</div>
