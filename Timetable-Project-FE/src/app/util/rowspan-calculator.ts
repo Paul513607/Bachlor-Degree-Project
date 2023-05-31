@@ -1,4 +1,5 @@
 import { AssignedTimetableEvent } from "src/app/model/assigned-timetable-event";
+import { AssignedEventCard } from "./assigned-event-card";
 
 export class RowSpanCalculator {
     public initSpans(timetableData: any[], columns: string[]): Array<Span[]> {
@@ -13,12 +14,12 @@ export class RowSpanCalculator {
         const spans: Array<Span[]> = this.initSpans(timetableData, columns);
 
         for (let rowIdx = 0; rowIdx < timetableData.length; rowIdx++) {
-            let row: { [key: string]: AssignedTimetableEvent } = {};
+            let row: { [key: string]: AssignedEventCard } = {};
             row = timetableData[rowIdx];
             spans[rowIdx][0] = {span: 1};
             for (let colIdx = 1; colIdx < columns.length; colIdx++) {
                 const day: string = columns[colIdx];
-                const assignedEvent: AssignedTimetableEvent = row[day] as AssignedTimetableEvent;
+                const assignedEvent: AssignedTimetableEvent = row[day].events[row[day].currentIndex];
 
                 let spanShouldBeZero: boolean = false;
                 for (let prevRowIdx = 1; prevRowIdx < rowIdx; prevRowIdx++) {

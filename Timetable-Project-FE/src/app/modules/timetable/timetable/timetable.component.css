@@ -120,6 +120,40 @@
     width: 100%;
 }
 
+.pagination-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.left-arrow {
+    order: 1;
+    display: flex;
+    align-self: flex-start;
+    width: 20%;
+    height: 100%;
+}
+
+.left-arrow:hover {
+    cursor: pointer;
+    color: yellow;
+}
+
+.right-arrow {
+    order: 2;
+    display: flex;
+    align-self: flex-end;
+    width: 20%;
+    height: 100%;
+}
+
+.right-arrow:hover {
+    cursor: pointer;
+    color: yellow;
+}
+
 @media screen and (max-width: 600px) {
     
 }

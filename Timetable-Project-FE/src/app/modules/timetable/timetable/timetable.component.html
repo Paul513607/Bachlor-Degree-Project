@@ -1,4 +1,4 @@
-<div class="main-page"> 
+<div class="main-page" [style.cursor]="isLoading ? 'wait' : 'auto'"> 
   <div class="above">
     <app-file-transfer></app-file-transfer>
   </div>
@@ -32,18 +32,29 @@
           [style.background-color]="getCellColor(element, rowIdx, colIdx)"
           class="event-card-cell">
               <ng-container
-              *ngIf="element[day].event != null && element[day].resource != null">
+              *ngIf="element[day].events[0].event != null && element[day].events[0].resource != null">
                 <div class="card-content-wrapper">
                   <div class="timetable-card">
-                    <mat-card class="timetable-mat-card"
-                    (click)="updateCurrentAssignedEvent(element[day])">
-                      <mat-card-title class="mat-card-title"> 
-                        {{ element[day].event.name }} 
-                      </mat-card-title>
-                      <mat-card-subtitle class="mat-card-subtitle"> 
-                        {{ element[day].resource.name }} 
-                      </mat-card-subtitle>
-                    </mat-card>
+                      <mat-card class="timetable-mat-card"
+                      (click)="updateCurrentAssignedEvent(element[day].events[element[day].currentIndex])">
+                        <mat-card-title class="mat-card-title"> 
+                          {{ element[day].events[element[day].currentIndex].event.name }} 
+                        </mat-card-title>
+                        <mat-card-subtitle class="mat-card-subtitle"> 
+                          {{ element[day].events[element[day].currentIndex].resource.name }} 
+                        </mat-card-subtitle>
+
+                        <div class="pagination-buttons" >
+                          <mat-icon 
+                          class="left-arrow"
+                          *ngIf="element[day].currentIndex > 0"
+                          (click)="goToPreviousElement(element[day])">arrow_back</mat-icon>
+                          <mat-icon
+                          class="right-arrow"
+                          *ngIf="element[day].currentIndex < element[day].events.length - 1"
+                          (click)="goToNextElement(element[day])">arrow_forward</mat-icon>
+                        </div>
+                      </mat-card>
                   </div>
                 </div>
               </ng-container>

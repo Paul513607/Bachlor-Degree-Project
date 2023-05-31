@@ -65,6 +65,8 @@ export class TimetableComponent implements OnInit, OnDestroy {
 
   public unassignedEvents: TimetableEvent[] = [];
 
+  public isLoading: boolean = false;
+
   constructor(
     private timetableService: TimetableService,
     private eventService: EventService,
@@ -81,7 +83,10 @@ export class TimetableComponent implements OnInit, OnDestroy {
       let dayIdx: number = 0;
       this.cellToColorMatrix.push(new Array<string>());
       for (const day of this.days) {
-        currentRow[day] = emptyAssignedTimetableEvent;
+        currentRow[day] = {
+          events: [emptyAssignedTimetableEvent],
+          currentIndex: 0
+        };
         this.cellToColorMatrix[hour - this.START_TIME][dayIdx] = this.DEFAULT_CELL_COLOR;
         dayIdx++;
       }
@@ -162,26 +167,31 @@ export class TimetableComponent implements OnInit, OnDestroy {
     if (this.selectedAlgorithmOption === '') {
       return;
     }
+    this.isLoading = true;
 
     this.timetableService.getAllAssignedEventsWithAlgorithm(this.selectedAlgorithmOption)
     .subscribe((assignedEvents: AssignedTimetableEvent[]) => {
       this.assignedEvents = assignedEvents;
       this.updateUnassignedEvents();
       console.log(this.assignedEvents);
+      this.isLoading = false;
     });
   }
 
   private getAssignedEventsByStudentGroup(): void {
+    this.isLoading = true;
     this.assignedEvents$ = this.timetableService.getAllAssignedEventsWithStudentGroup(this.selectedStudentGroup);
     this.placeAssignedEventsOnTimetable(this.assignedEvents);
   }
 
   private getAssignedEventsByProfessor(): void {
+    this.isLoading = true;
     this.assignedEvents$ = this.timetableService.getAllAssignedEventsWithProfessor(this.selectedProfessor);
     this.placeAssignedEventsOnTimetable(this.assignedEvents);
   }
 
   private getAssignedEventsByRoom(): void {
+    this.isLoading = true;
     this.assignedEvents$ = this.timetableService.getAllAssignedEventsWithRoom(this.selectedRoom);
     this.placeAssignedEventsOnTimetable(this.assignedEvents);
   }
@@ -191,6 +201,7 @@ export class TimetableComponent implements OnInit, OnDestroy {
     .subscribe((assignedEvents: AssignedTimetableEvent[]) => {
       this.assignedEvents = assignedEvents;
       this.addEventsToTimetableData(this.assignedEvents);
+      this.isLoading = false;
     });
   }
 
@@ -205,8 +216,11 @@ export class TimetableComponent implements OnInit, OnDestroy {
       this.cellToColorMatrix.push(new Array<string>());
       let dayIdx: number = 0;
       for (const day of this.days) {
-        let currentAssignedEvent: AssignedTimetableEvent = this.getAssignedEventByDayAndTime(day, hour, assignedEvents);
-        currentRow[day] = currentAssignedEvent;
+        let currentAssignedEvents: AssignedTimetableEvent[] = this.getAssignedEventByDayAndTime(day, hour, assignedEvents);
+        currentRow[day] = {
+          events: currentAssignedEvents,
+          currentIndex: 0
+        };
         this.cellToColorMatrix[hour - this.START_TIME][dayIdx] = this.DEFAULT_CELL_COLOR;
         dayIdx++;
       }
@@ -219,6 +233,14 @@ export class TimetableComponent implements OnInit, OnDestroy {
     this.rowSpans = rowSpanCalculator.calculateSpans(this.timetableData, this.columnsToDisplay);
     console.log(this.rowSpans);
     console.log(this.timetableData);
+  }
+
+  public goToPreviousElement(timetableCard: any): void {
+    timetableCard.currentIndex -= 1;
+  }
+
+  public goToNextElement(timetableCard: any): void {
+    timetableCard.currentIndex += 1;
   }
 
   public getRowSpan(element: any, rowIdx: number, colIdx: number): number {
@@ -238,7 +260,8 @@ export class TimetableComponent implements OnInit, OnDestroy {
   }
 
   private getAssignedEventByDayAndTime(day: string, hour: number, 
-                    assignedEvents: AssignedTimetableEvent[]): AssignedTimetableEvent {
+                    assignedEvents: AssignedTimetableEvent[]): AssignedTimetableEvent[] {
+    const assignedEventsForTimeslot: AssignedTimetableEvent[] = [];
     for (let assignedEvent of assignedEvents) {
       if (assignedEvent.time == null) {
         continue;
@@ -246,10 +269,13 @@ export class TimetableComponent implements OnInit, OnDestroy {
 
       const assignedEventHour: number = parseInt(assignedEvent.time.split(":")[0]);
       if (assignedEvent.day === this.daysToValues.get(day) && assignedEventHour === hour) {
-        return assignedEvent;
+        assignedEventsForTimeslot.push(assignedEvent);
       }
     }
-    return emptyAssignedTimetableEvent;
+    if (assignedEventsForTimeslot.length === 0) {
+      assignedEventsForTimeslot.push(emptyAssignedTimetableEvent);
+    }
+    return assignedEventsForTimeslot;
   }
 
   public updateCurrentAssignedEvent(assignedEvent: AssignedTimetableEvent): void {
@@ -321,7 +347,7 @@ export class TimetableComponent implements OnInit, OnDestroy {
     this.currentEventRooms = [];
   }
 
-  public getCellColor(event: AssignedTimetableEvent, rowIdx: number, colIdx: number): string {
+  public getCellColor(event: AssignedTimetableEvent[], rowIdx: number, colIdx: number): string {
     let color: string = this.DEFAULT_CELL_COLOR;
     const colorOpt: string | undefined = this.cellToColorMatrix[rowIdx][colIdx];
     if (colorOpt != null) {
