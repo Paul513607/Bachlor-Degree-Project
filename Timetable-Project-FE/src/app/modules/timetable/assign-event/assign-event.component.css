@@ -14,7 +14,7 @@
     font-weight: bold;
 }
 
-.overlap-message-container {
+.overlap-message-container, .invalid-room-message-container {
     text-align: center;
     color: red;
     font-weight: bold;
@@ -28,4 +28,11 @@
     height: 3em;
     font-size: 16px;
     margin-bottom: 10px;
+}
+
+.room-input {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin: 10px;
 }

@@ -10,6 +10,7 @@ import { AvailabilitySlotService } from 'src/app/services/availability-slot.serv
 import { AvailabilitySlot } from 'src/app/model/availability-slot';
 import { Resource } from 'src/app/model/resource';
 import { EventService } from 'src/app/services/event.service';
+import { ResourceService } from 'src/app/services/resource.service';
 
 @Component({
   selector: 'app-timetable',
@@ -35,6 +36,8 @@ export class TimetableComponent implements OnInit, OnDestroy {
 
   public assignedEvents$: Observable<AssignedTimetableEvent[]> = new Observable<AssignedTimetableEvent[]>();
   public assignedEvents: AssignedTimetableEvent[] = [];
+
+  public roomList: Resource[] = [];
 
   public columnsToDisplay: string[] = ['rowClassTime', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
   public columnsWithoutFirst: string[] = [];
@@ -65,6 +68,7 @@ export class TimetableComponent implements OnInit, OnDestroy {
   constructor(
     private timetableService: TimetableService,
     private eventService: EventService,
+    private resourceService: ResourceService,
     private availabilitySlotService: AvailabilitySlotService,
     private router: Router,
     private readonly activatedRoute: ActivatedRoute
@@ -88,6 +92,7 @@ export class TimetableComponent implements OnInit, OnDestroy {
     this.rowSpans = rowSpanCalculator.calculateSpans(this.timetableData, this.columnsToDisplay);
 
     console.log(this.cellToColorMatrix);
+    this.populateRooms();
   }
 
   ngOnInit(): void {
@@ -96,6 +101,16 @@ export class TimetableComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.unsubscribe$.next();
     this.unsubscribe$.complete();
+  }
+
+  public populateRooms(): void {
+    this.resourceService.getAllRooms()
+    .pipe(takeUntil(this.unsubscribe$))
+    .subscribe((rooms: any[]) => {
+      rooms.forEach(room => {
+        this.roomList.push(room);
+      });
+    });
   }
 
   public onChageSelectedAlgorithm(algorithmOption: string): void {

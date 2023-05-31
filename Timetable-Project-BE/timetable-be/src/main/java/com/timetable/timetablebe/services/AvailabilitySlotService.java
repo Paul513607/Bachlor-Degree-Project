@@ -80,10 +80,18 @@ public class AvailabilitySlotService {
         availableRoomsSet.removeAll(currentEventResources);
         availableRoomsSet = availableRoomsSet.stream()
                 .filter(resource -> resource.getCapacity() > 0)
-                .filter(resource -> resource.getType()
-                        .equals(eventTypeToResourceType.get(eventEntity.getType())))
                 .collect(Collectors.toSet());
-        return availableRoomsSet;
+
+        Set<ResourceEntity> availableRoomsSetByType = new HashSet<>();
+        for (ResourceEntity availableRoom : availableRoomsSet) {
+            if (availableRoom.getType().equals("curs") && eventEntity.getType().equals("C")) {
+                availableRoomsSetByType.add(availableRoom);
+            } else if ((availableRoom.getType().equals("lab") || availableRoom.getType().equals("sem")) &&
+                        (eventEntity.getType().equals("L") || eventEntity.getType().equals("S"))) {
+                availableRoomsSetByType.add(availableRoom);
+            }
+        }
+        return availableRoomsSetByType;
     }
 
     public List<AvailabilitySlotDto> getAvailableSlots(EventDto eventDto) {

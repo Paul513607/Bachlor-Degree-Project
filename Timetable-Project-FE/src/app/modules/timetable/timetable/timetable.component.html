@@ -77,6 +77,7 @@
       [currentEventToAssign]="currentAssignedEvent"
       [availableRooms]="currentEventRooms"
       [isOverlap]="isAssignmentOverlap"
+      [allRooms]="roomList"
       (getTimeslotRooms)="getRoomsForDayAndTime($event)"
       (onAssignEvent)="assignEvent($event)"
       ></app-assign-event>

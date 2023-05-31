@@ -25,6 +25,8 @@ export class AssignEventComponent implements OnInit, OnDestroy {
   public currentEventToAssign: AssignedTimetableEvent = emptyAssignedTimetableEvent;
   @Input()
   public availableRooms: Resource[] = [];
+  @Input()
+  public allRooms: Resource[] = [];
 
   @Output()
   public getTimeslotRooms = new EventEmitter<any>();
@@ -33,9 +35,11 @@ export class AssignEventComponent implements OnInit, OnDestroy {
   public minute: number = 0;
   public selectedDay: string = '';
   public selectedRoom: Resource | null = null;
+  public selectedRoomText: string = '';
 
   @Input()
   public isOverlap: boolean = false;
+  public isRoomInvalid: boolean = false;
 
   @Output()
   public onAssignEvent = new EventEmitter<any>();
@@ -51,6 +55,18 @@ export class AssignEventComponent implements OnInit, OnDestroy {
   public getAvailableRooms(): void {
     if (this.hour == 0 || this.selectedDay == '') {
       return;
+    }
+
+    if (this.selectedRoomText != '') {
+      let roomOpt : Resource | undefined = this.allRooms.find((room: Resource) => room.name == this.selectedRoomText);
+
+      if (roomOpt != undefined) {
+        this.selectedRoom = roomOpt;
+        this.isRoomInvalid = false;
+      } else {
+        this.isRoomInvalid = true;
+      }
+      console.log(this.isRoomInvalid);
     }
     this.getTimeslotRooms.emit({day: this.selectedDay, hour: this.hour, minute: this.minute});
   }

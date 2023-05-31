@@ -4,11 +4,11 @@
             <div class="input-container">
                 <mat-form-field class="form-field">
                     <mat-label class="form-label">Enter Hour: </mat-label>
-                    <input matInput type="number" [(ngModel)]="hour" name="hour" class="form-input">
+                    <input matInput (change)="getAvailableRooms()" type="number" [(ngModel)]="hour" name="hour" class="form-input">
                 </mat-form-field>
                 <mat-form-field class="form-field">
                     <mat-label class="form-label">Enter Minute: </mat-label>
-                    <input matInput type="number" [(ngModel)]="minute" name="minute" class="form-input">
+                    <input matInput (change)="getAvailableRooms()" type="number" [(ngModel)]="minute" name="minute" class="form-input">
                 </mat-form-field>
             </div>
             <div class="select-container">
@@ -30,10 +30,23 @@
                     </mat-select>
                 </mat-form-field>
             </div>
+            <div class="room-input">
+                <mat-form-field class="form-field">
+                    <mat-label class="form-label">Or Enter Room Name: </mat-label>
+                    <input matInput (change)="getAvailableRooms()" type="text" [(ngModel)]="selectedRoomText" name="selectedRoomText" class="form-input">
+                </mat-form-field>
+            </div>
             <div *ngIf="isOverlap" class="overlap-message-container">
                 <span>Warning: This assignment may overlap with another.</span>
             </div>
-            <button mat-raised-button color="primary" (click)="assignEvent()" class="assign-btn">Assign</button>
+            <div *ngIf="isRoomInvalid && selectedRoomText != ''" class="invalid-room-message-container">
+                <span>Invalid Room Name</span>
+            </div>
+            <button mat-raised-button 
+            color="primary" 
+            (click)="assignEvent()" 
+            class="assign-btn"
+            [disabled]="isRoomInvalid">Assign</button>
         </div>
         <!-- <label>Enter Hour</label>
         <input type="number"  [(ngModel)]="hour">
