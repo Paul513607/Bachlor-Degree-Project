@@ -9,10 +9,7 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.timetable.algorithm.wraps.ColorDayTimeWrap;
 import org.timetable.model.TimetableNode;
-import org.timetable.pojo.Event;
-import org.timetable.pojo.Group;
-import org.timetable.pojo.Prof;
-import org.timetable.pojo.Timetable;
+import org.timetable.pojo.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -153,6 +150,31 @@ public class ApplicationStartup implements ApplicationRunner, ApplicationStartup
         eventRepo.saveAll(eventEntities);
         studentGroupRepo.saveAll(studentGroupEntities);
         professorRepo.saveAll(professorEntities);
+
+        if (assignedEventRepo.findAll().isEmpty()) {
+            List<Assignment> assignments = timetable.getAssignments();
+
+            for (Assignment assignment : assignments) {
+                String eventAbbr = assignment.getEvent();
+                String resourceAbbr = assignment.getResources().split(",")[0];
+                int day = assignment.getDay();
+                LocalTime time = assignment.getStartTime();
+
+                if (eventAbbr.equals("") || resourceAbbr.equals("")) {
+                    continue;
+                }
+
+                Optional<EventEntity> eventEntityOpt = eventRepo.findByAbbr(eventAbbr);
+                Optional<ResourceEntity> resourceEntityOpt = resourceRepo.findByAbbr(resourceAbbr);
+
+                if (eventEntityOpt.isEmpty() || resourceEntityOpt.isEmpty()) {
+                    continue;
+                }
+
+                assignedEventRepo.save(
+                        new AssignedEventEntity(eventEntityOpt.get(), resourceEntityOpt.get(), day, time));
+            }
+        }
     }
 
     @Override

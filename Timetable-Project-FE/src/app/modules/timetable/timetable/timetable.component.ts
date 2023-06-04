@@ -47,6 +47,9 @@ export class TimetableComponent implements OnInit, OnDestroy {
   public unsubscribe$: Subject<void> = new Subject<void>();
 
   public selectedAlgorithmOption: string = '';
+  public useSorting: boolean = false;
+  public shuffleEvents: boolean = false;
+
   public selectedStudentGroup: string = '';
   public selectedProfessor: string = '';
   public selectedRoom: string = '';
@@ -118,9 +121,10 @@ export class TimetableComponent implements OnInit, OnDestroy {
     });
   }
 
-  public onChageSelectedAlgorithm(algorithmOption: string): void {
-    this.selectedAlgorithmOption = algorithmOption;
-    console.log(this.selectedAlgorithmOption);
+  public onChageSelectedAlgorithm(algorithmData: any): void {
+    this.selectedAlgorithmOption = algorithmData.algorithm;
+    this.useSorting = algorithmData.useSorting;
+    this.shuffleEvents = algorithmData.shuffleEvents;
   }
 
   public onChangeStudentGroup(studentGroup: string): void {
@@ -152,7 +156,6 @@ export class TimetableComponent implements OnInit, OnDestroy {
     if (this.selectedAlgorithmOption !== '') {
       this.getAssignedEventsByAlgorithmOption();
     }
-
     console.log("Done generating");
   }
 
@@ -169,7 +172,10 @@ export class TimetableComponent implements OnInit, OnDestroy {
     }
     this.isLoading = true;
 
-    this.timetableService.getAllAssignedEventsWithAlgorithm(this.selectedAlgorithmOption)
+    console.log(this.selectedAlgorithmOption);
+    console.log(this.useSorting);
+    console.log(this.shuffleEvents);
+    this.timetableService.getAllAssignedEventsWithAlgorithm(this.selectedAlgorithmOption, this.useSorting, this.shuffleEvents)
     .subscribe((assignedEvents: AssignedTimetableEvent[]) => {
       this.assignedEvents = assignedEvents;
       this.updateUnassignedEvents();

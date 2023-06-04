@@ -7,6 +7,7 @@ import org.timetable.algorithm.wraps.ColorDayTimeWrap;
 import org.timetable.algorithm.wraps.NodeSaturationComparator;
 import org.timetable.algorithm.wraps.TimetableNodeSatur;
 import org.timetable.model.*;
+import org.timetable.pojo.Event;
 import org.timetable.pojo.Group;
 
 import java.time.LocalTime;
@@ -42,15 +43,50 @@ public class IntervalRoomColoringAlgorithm extends TimetableColoringAlgorithm {
         this.algorithmOption = algorithmOption;
     }
 
+    public void applyOptimisations(boolean useSorting, boolean shuffle) {
+        // if useSorting is true, ignore shuffle
+        if (useSorting) {
+            sortTimetableNodesByEdgeCount();
+        } else {
+            Collections.shuffle(graph.getNodes());
+        }
+    }
+
     @Override
     public void colorGraph() {
-        sortTimetableNodesByEdgeCount();
+        colorGraph(algorithmOption, true, true);
+    }
 
-        if (algorithmOption == 1) {
+    public void colorGraph(int algorithmOption, boolean useSorting, boolean shuffle) {
+        this.algorithmOption = algorithmOption;
+        applyOptimisations(useSorting, shuffle);
+
+        if (this.algorithmOption == 1) {
             greedyColoringMethod();
-        } else if (algorithmOption == 2) {
+        } else if (this.algorithmOption == 2) {
             dsaturColoringMethod();
         }
+    }
+
+    private TimetableColorIntervalRoom getBestFitColor(Set<TimetableColorIntervalRoom> availableColors,
+                                                       TimetableNode node) {
+        Set<TimetableColorIntervalRoom> usedColors = new HashSet<>();
+        for (TimetableColorIntervalRoom color : availableColors) {
+            for (ColorDayTimeWrap wrap : nodeColorMap.values()) {
+                if (wrap.getDay() == color.getDay() && wrap.getTime() == color.getTime().getHour()) {
+                    if (wrap.getColor().getResource().equals(color.getResource())) {
+                        usedColors.add(color);
+                        break;
+                    }
+                }
+            }
+        }
+        Set<TimetableColorIntervalRoom> availableColorsCopy = new HashSet<>(availableColors);
+        availableColorsCopy.removeAll(usedColors);
+        if (availableColorsCopy.isEmpty()) {
+            return null;
+        }
+        return availableColorsCopy.iterator().next();
     }
 
     public void greedyColoringMethod() {
@@ -75,9 +111,18 @@ public class IntervalRoomColoringAlgorithm extends TimetableColoringAlgorithm {
             for (TimetableNode neighbour : neighbours) {
                 if (nodeColorMap.containsKey(neighbour)) {
                     ColorDayTimeWrap wrap = nodeColorMap.get(neighbour);
+                    for (TimetableColorIntervalRoom color : availableColors) {
+                        if (color.getDay() == wrap.getDay() && color.getTime().getHour() == wrap.getTime()) {
+                            usedColors.add(color);
+                        }
+                    }
+                }
+
+                /*if (nodeColorMap.containsKey(neighbour)) {
+                    ColorDayTimeWrap wrap = nodeColorMap.get(neighbour);
                     usedColors.add(new TimetableColorIntervalRoom(wrap.getDay(), LocalTime.of(wrap.getTime(), 0),
                             wrap.getColor().getResource()));
-                }
+                }*/
             }
 
             int totalMemberCount = node.getEvent().getGroupListNoParents().stream()
@@ -88,13 +133,18 @@ public class IntervalRoomColoringAlgorithm extends TimetableColoringAlgorithm {
             availableColors = availableColors.stream()
                     .filter(color -> color.getResource().getCapacity() >= totalMemberCount)
                     .collect(Collectors.toSet());
+
             if (availableColors.isEmpty()) {
                 continue;
             }
 
-            TimetableColorIntervalRoom firstColor = availableColors.iterator().next();
-            nodeColorMap.put(node, new ColorDayTimeWrap(new TimetableColorRoom(firstColor.getResource()),
-                                            firstColor.getDay(), firstColor.getTime().getHour()));
+            TimetableColorIntervalRoom bestFitColor = getBestFitColor(availableColors, node);
+            if (bestFitColor == null) {
+                // graph.getNodes().add(node);
+                continue;
+            }
+            nodeColorMap.put(node, new ColorDayTimeWrap(new TimetableColorRoom(bestFitColor.getResource()),
+                    bestFitColor.getDay(), bestFitColor.getTime().getHour()));
         }
     }
 
@@ -133,15 +183,22 @@ public class IntervalRoomColoringAlgorithm extends TimetableColoringAlgorithm {
             for (TimetableNode neighbour : neighbours) {
                 if (nodeColorMap.containsKey(neighbour)) {
                     ColorDayTimeWrap wrap = nodeColorMap.get(neighbour);
+                    for (TimetableColorIntervalRoom color : availableColors) {
+                        if (color.getDay() == wrap.getDay() && color.getTime().getHour() == wrap.getTime()) {
+                            usedColors.add(color);
+                        }
+                    }
+                    /*ColorDayTimeWrap wrap = nodeColorMap.get(neighbour);
                     usedColors.add(new TimetableColorIntervalRoom(wrap.getDay(), LocalTime.of(wrap.getTime(), 0),
                             wrap.getColor().getResource()));
-                }
+*/                }
             }
 
             int totalMemberCount = node.getEvent().getGroupListNoParents().stream()
                     .mapToInt(Group::getMemberCount)
                     .sum() / 4;
             availableColors.removeAll(usedColors);
+            // filter the colors which have the same day and time event's students and professors
             availableColors = availableColors.stream()
                     .filter(color -> color.getResource().getCapacity() >= totalMemberCount)
                     .collect(Collectors.toSet());
@@ -149,9 +206,18 @@ public class IntervalRoomColoringAlgorithm extends TimetableColoringAlgorithm {
                 continue;
             }
 
-            TimetableColorIntervalRoom firstColor = availableColors.iterator().next();
-            nodeColorMap.put(node, new ColorDayTimeWrap(new TimetableColorRoom(firstColor.getResource()),
-                    firstColor.getDay(), firstColor.getTime().getHour()));
+            TimetableColorIntervalRoom bestFitColor = getBestFitColor(availableColors, node);
+            if (bestFitColor == null) {
+                List<TimetableNode> tmpNodes = graph.getNodes().stream()
+                        .filter(node1 -> node1.equals(node))
+                        .toList();
+                if (tmpNodes.size() < 3) {
+                    // graph.getNodes().add(node);
+                }
+                continue;
+            }
+            nodeColorMap.put(node, new ColorDayTimeWrap(new TimetableColorRoom(bestFitColor.getResource()),
+                    bestFitColor.getDay(), bestFitColor.getTime().getHour()));
 
             for (TimetableNode neighbour : neighbours) {
                 if (nodeColorMap.containsKey(neighbour)) {

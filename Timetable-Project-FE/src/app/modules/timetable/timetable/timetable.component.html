@@ -6,6 +6,7 @@
     <div class="sidebar">
       <app-sidebar 
         [unassignedEvents]="unassignedEvents"
+        [isDataLoading]="isLoading"
         (onChageSelectedAlgorithm)="onChageSelectedAlgorithm($event)"
 
         (onChangeSelectedStudentGroup)="onChangeStudentGroup($event)"
@@ -38,10 +39,10 @@
                       <mat-card class="timetable-mat-card"
                       (click)="updateCurrentAssignedEvent(element[day].events[element[day].currentIndex])">
                         <mat-card-title class="mat-card-title"> 
-                          {{ element[day].events[element[day].currentIndex].event.name }} 
+                          <span class="mat-card-title-span">{{ element[day].events[element[day].currentIndex].event.name }} </span>
                         </mat-card-title>
                         <mat-card-subtitle class="mat-card-subtitle"> 
-                          {{ element[day].events[element[day].currentIndex].resource.name }} 
+                          <span class="mat-card-subtitle-span">{{ element[day].events[element[day].currentIndex].resource.name }} </span>
                         </mat-card-subtitle>
 
                         <div class="pagination-buttons" >

@@ -9,6 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { TimetableRoutingModule } from './timetable-routing.module';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -41,6 +42,7 @@ import { FileTransferComponent } from './file-transfer/file-transfer.component';
     MatButtonToggleModule,
     MatIconModule,
     MatInputModule,
+    MatCheckboxModule,
   ]
 })
 export class TimetableModule { }

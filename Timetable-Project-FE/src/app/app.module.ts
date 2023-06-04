@@ -12,6 +12,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
@@ -35,6 +36,7 @@ import { HttpClientModule } from '@angular/common/http';
     MatButtonToggleModule,
     MatIconModule,
     MatInputModule,
+    MatCheckboxModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -28,10 +28,13 @@ public class AssignedEventController {
 
     @GetMapping("/algorithm")
     public ResponseEntity<List<AssignedEventDto>> getAssignedEventsByAlgorithm(
-                                        @RequestParam(name = "algorithmOption") String algorithmOption) {
+                                        @RequestParam(name = "algorithmOption") String algorithmOption,
+                                        @RequestParam(name = "useSorting") Boolean useSorting,
+                                        @RequestParam(name = "shuffle") Boolean shuffle) {
         List<AssignedEventDto> assignedEventDtos = new ArrayList<>();
         try {
-            assignedEventDtos = assignedEventService.getAssignedEventsByAlgorithm(algorithmOption);
+            assignedEventDtos = assignedEventService.getAssignedEventsByAlgorithm(
+                                            algorithmOption, useSorting, shuffle);
         } catch (IOException e) {
             throw new UnableToReadTimetableFileException("Unable to read timetable file");
         }

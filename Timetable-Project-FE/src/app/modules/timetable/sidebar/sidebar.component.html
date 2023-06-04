@@ -34,10 +34,18 @@
                     </mat-select>
                 </mat-form-field>
             </div>
+            <div class="form-field" *ngIf="selectedAlgorithmOption.value != ''" class="alg-checkbox-container">
+                <mat-checkbox [(ngModel)]="useSorting" name="useSorting" (change)="onChangeUseSorting(useSorting)">
+                    Use Sorting
+                </mat-checkbox>
+                <mat-checkbox [(ngModel)]="shuffleEvents" name="shuffleEvents" (change)="onChangeShuffleEvents(shuffleEvents)">
+                    Shuffle Events
+                </mat-checkbox>
+            </div>
             <div class="form-field">
                 <button mat-raised-button 
                 class="generate-btn" 
-                (click)="onGenerateTimetable()">GENERATE</button>
+                (click)="onGenerateTimetable()" [disabled]="isDataLoading">GENERATE</button>
             </div>
             <div class="form-field">
                 <mat-radio-group 

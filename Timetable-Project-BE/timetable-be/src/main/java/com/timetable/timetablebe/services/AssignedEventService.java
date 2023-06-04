@@ -20,7 +20,10 @@ import org.timetable.model.TimetableNode;
 import org.timetable.pojo.Group;
 import org.timetable.pojo.Prof;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.time.LocalTime;
 import java.util.*;
@@ -31,7 +34,12 @@ import static org.timetable.Main.*;
 public class AssignedEventService {
     private final Integer DEFAULT_START_HOUR = 8;
     private static final String DEFAULT_ALGORITHM_OPTION = "2";
+    private static final Boolean DEFAULT_USE_SORTING_VALUE = false;
+    private static final Boolean DEFAULT_SHUFFLE_VALUE = false;
+
     public static String cachedAlgorithmOption = "";
+    public static boolean cachedUseSortingValue = false;
+    public static boolean cachedShuffleValue = false;
 
     @Autowired
     private AssignedEventRepository assignedEventRepo;
@@ -77,6 +85,7 @@ public class AssignedEventService {
     }
 
     private void resetDatabase(List<AssignedEventEntity> assignedEvents) {
+        System.out.println("Resetting database...");
         // if the option was changed, reset the database
         assignedEventRepo.deleteAll();
 
@@ -97,6 +106,7 @@ public class AssignedEventService {
             assignedEvent.setEvent(event);
             resource = resourceOptional.get();
             assignedEvent.setResource(resource);
+            int size = assignedEventRepo.findAll().size();
 
             assignedEventRepo.save(assignedEvent);
             event.setAssignedEvent(assignedEvent);
@@ -106,11 +116,13 @@ public class AssignedEventService {
         }
     }
 
-    public List<AssignedEventDto> getAssignedEventsByAlgorithm(String algorithmOption) throws IOException {
+    public List<AssignedEventDto> getAssignedEventsByAlgorithm(String algorithmOption, Boolean useSorting,
+                                                               Boolean shuffle) throws IOException {
         List<AssignedEventEntity> assignedEvents;
         Map<TimetableNode, ColorDayTimeWrap> timetable;
 
-        if (cachedAlgorithmOption.equals(algorithmOption)) {
+        if (cachedAlgorithmOption.equals(algorithmOption) && cachedUseSortingValue == useSorting
+                && cachedShuffleValue == shuffle) {
             assignedEvents = assignedEventRepo.findAll();
             return mapEntityListToDtoList(assignedEvents);
         }
@@ -118,23 +130,35 @@ public class AssignedEventService {
         switch (algorithmOption) {
             case "1" -> {
                 timetable = roomOnlyColoringFileContent(
-                        Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()));
+                        Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()),
+                                            1, useSorting, shuffle);
                 assignedEvents = mapAlgorithmResultsToEntities(timetable);
 
                 cachedAlgorithmOption = algorithmOption;
                 resetDatabase(assignedEvents);
             }
             case "2" -> {
-                timetable = intervalRoomColoringGreedyFileContent(
-                        Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()));
+                timetable = intervalRoomColoringFileContent(
+                        Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()),
+                                            1, useSorting, shuffle);
                 assignedEvents = mapAlgorithmResultsToEntities(timetable);
 
                 cachedAlgorithmOption = algorithmOption;
                 resetDatabase(assignedEvents);
             }
             case "3" -> {
-                timetable = intervalRoomColoringDSaturFileContent(
-                        Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()));
+                timetable = intervalRoomColoringFileContent(
+                        Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()),
+                                            2, useSorting, shuffle);
+                assignedEvents = mapAlgorithmResultsToEntities(timetable);
+
+                cachedAlgorithmOption = algorithmOption;
+                resetDatabase(assignedEvents);
+            }
+            case "4" -> {
+                timetable = intervalColoringTwoStepFileContent(
+                        Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()),
+                                            1, useSorting, shuffle);
                 assignedEvents = mapAlgorithmResultsToEntities(timetable);
 
                 cachedAlgorithmOption = algorithmOption;
@@ -149,7 +173,8 @@ public class AssignedEventService {
     private void regenerateTimetable() throws IOException {
         System.out.println("Generating timetable");
         Map<TimetableNode, ColorDayTimeWrap> timetable =
-                intervalRoomColoringGreedyFileContent(Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()));
+                intervalRoomColoringFileContent(Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()),
+                                                1, DEFAULT_USE_SORTING_VALUE, DEFAULT_SHUFFLE_VALUE);
         List<AssignedEventEntity> assignedEvents = mapAlgorithmResultsToEntities(timetable);
 
         cachedAlgorithmOption = DEFAULT_ALGORITHM_OPTION;
@@ -157,7 +182,7 @@ public class AssignedEventService {
     }
 
     public List<AssignedEventDto> getAssignedEventsByStudentGroup(String abbr) throws IOException {
-        List<AssignedEventEntity> assignedEvents = assignedEventRepo.findAllByStudentGroupAbbr(abbr);
+        List<AssignedEventEntity> assignedEvents = assignedEventRepo.findAll();
         // if the list is empty, we need to generate
         if (assignedEvents.isEmpty()) {
             regenerateTimetable();
@@ -168,7 +193,7 @@ public class AssignedEventService {
     }
 
     public List<AssignedEventDto> getAssignedEventsByProfessor(String abbr) throws IOException {
-        List<AssignedEventEntity> assignedEvents = assignedEventRepo.findAllByProfAbbr(abbr);
+        List<AssignedEventEntity> assignedEvents = assignedEventRepo.findAll();
         // if the list is empty, we need to generate
         if (assignedEvents.isEmpty()) {
             regenerateTimetable();
@@ -178,7 +203,7 @@ public class AssignedEventService {
     }
 
     public List<AssignedEventDto> getAssignedEventsByRoom(String abbr) throws IOException {
-        List<AssignedEventEntity> assignedEvents = assignedEventRepo.findAllByRoomAbbr(abbr);
+        List<AssignedEventEntity> assignedEvents = assignedEventRepo.findAll();
         // if the list is empty, we need to generate
         if (assignedEvents.isEmpty()) {
             regenerateTimetable();

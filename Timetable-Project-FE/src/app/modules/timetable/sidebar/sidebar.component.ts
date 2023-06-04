@@ -23,6 +23,7 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
     {label: 'Room Only Coloring', value: '1'},
     {label: 'Greedy Day-Time-Room Coloring', value: '2'},
     {label: 'DSatur Day-Time-Room Coloring', value: '3'},
+    {label: 'Greedy + Hopcroft-Karp Interval Coloring', value: '4'},
   ];
 
   public typeToTypeNameMap: Map<string, string> = new Map<string, string>([
@@ -42,6 +43,8 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
   public roomDisplayList: DisplayEntity[] = [];
 
   public selectedAlgorithmOption: DisplayEntity = {label: '', value: ''};
+  public useSorting: boolean = false;
+  public shuffleEvents: boolean = false;
 
   public selectedStudentGroup: DisplayEntity = {label: '', value: ''};
   public selectedProfessor: DisplayEntity = {label: '', value: ''};
@@ -51,10 +54,13 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
   public unassignedEvents: TimetableEvent[] = [];
   public unassignedEventsDisplay: AssignedTimetableEvent[] = [];
 
+  @Input()
+  public isDataLoading: boolean = false;
+
   public unsubscribe$: Subject<void> = new Subject<void>();
 
   @Output()
-  public onChageSelectedAlgorithm = new EventEmitter<string>();
+  public onChageSelectedAlgorithm = new EventEmitter<any>();
   
   @Output()
   public onChangeSelectedStudentGroup = new EventEmitter<string>();
@@ -92,7 +98,30 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   public onChangeAlgorithmOption(algorithmOption: DisplayEntity): void {
-    this.onChageSelectedAlgorithm.emit(algorithmOption.value);
+    this.selectedAlgorithmOption = algorithmOption;
+    this.onChageSelectedAlgorithm.emit({
+      algorithm: algorithmOption.value,
+      useSorting: this.useSorting,
+      shuffleEvents: this.shuffleEvents
+    });
+  }
+
+  public onChangeUseSorting(useSorting: boolean): void {
+    this.useSorting = useSorting;
+    this.onChageSelectedAlgorithm.emit({
+      algorithm: this.selectedAlgorithmOption.value,
+      useSorting: useSorting,
+      shuffleEvents: this.shuffleEvents
+    });
+  }
+
+  public onChangeShuffleEvents(shuffleEvents: boolean): void {
+    this.shuffleEvents = shuffleEvents;
+    this.onChageSelectedAlgorithm.emit({
+      algorithm: this.selectedAlgorithmOption.value,
+      useSorting: this.useSorting,
+      shuffleEvents: shuffleEvents
+    });
   }
 
   public onChangeStudentGroup(studentGroup: DisplayEntity): void {

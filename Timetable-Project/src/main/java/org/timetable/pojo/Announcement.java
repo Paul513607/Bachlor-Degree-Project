@@ -20,7 +20,7 @@ public class Announcement {
     @JacksonXmlProperty(isAttribute = true)
     private String eventGroup;
     @JacksonXmlProperty(isAttribute = true)
-    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "dd.MM.yyyy")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy")
     private LocalDate expireDate;
     @JacksonXmlProperty(isAttribute = true)
     private String header;
@@ -29,6 +29,6 @@ public class Announcement {
     @JacksonXmlProperty(isAttribute = true)
     private String resource;
     @JacksonXmlProperty(isAttribute = true)
-    @JsonFormat(shape = JsonFormat.Shape.STRING,pattern = "dd.MM.yyyy HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd.MM.yyyy HH:mm")
     private LocalDateTime timestamp;
 }
