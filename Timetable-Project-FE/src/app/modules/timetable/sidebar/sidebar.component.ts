@@ -24,6 +24,7 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
     {label: 'Greedy Day-Time-Room Coloring', value: '2'},
     {label: 'DSatur Day-Time-Room Coloring', value: '3'},
     {label: 'Greedy + Hopcroft-Karp Interval Coloring', value: '4'},
+    {label: 'Modified DSatur + Hopcroft-Karp Interval Coloring', value: '5'},
   ];
 
   public typeToTypeNameMap: Map<string, string> = new Map<string, string>([
@@ -45,6 +46,7 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
   public selectedAlgorithmOption: DisplayEntity = {label: '', value: ''};
   public useSorting: boolean = false;
   public shuffleEvents: boolean = false;
+  public usePartialCol: boolean = false;
 
   public selectedStudentGroup: DisplayEntity = {label: '', value: ''};
   public selectedProfessor: DisplayEntity = {label: '', value: ''};
@@ -102,7 +104,8 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
     this.onChageSelectedAlgorithm.emit({
       algorithm: algorithmOption.value,
       useSorting: this.useSorting,
-      shuffleEvents: this.shuffleEvents
+      shuffleEvents: this.shuffleEvents,
+      usePartialCol: this.usePartialCol
     });
   }
 
@@ -111,7 +114,8 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
     this.onChageSelectedAlgorithm.emit({
       algorithm: this.selectedAlgorithmOption.value,
       useSorting: useSorting,
-      shuffleEvents: this.shuffleEvents
+      shuffleEvents: this.shuffleEvents,
+      usePartialCol: this.usePartialCol
     });
   }
 
@@ -120,7 +124,18 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
     this.onChageSelectedAlgorithm.emit({
       algorithm: this.selectedAlgorithmOption.value,
       useSorting: this.useSorting,
-      shuffleEvents: shuffleEvents
+      shuffleEvents: shuffleEvents,
+      usePartialCol: this.usePartialCol
+    });
+  }
+
+  public onChangeUsePartialCol(usePartialCol: boolean): void {
+    this.usePartialCol = usePartialCol;
+    this.onChageSelectedAlgorithm.emit({
+      algorithm: this.selectedAlgorithmOption.value,
+      useSorting: this.useSorting,
+      shuffleEvents: this.shuffleEvents,
+      usePartialCol: usePartialCol
     });
   }
 

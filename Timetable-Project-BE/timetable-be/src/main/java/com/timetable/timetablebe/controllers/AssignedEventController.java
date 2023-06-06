@@ -30,11 +30,12 @@ public class AssignedEventController {
     public ResponseEntity<List<AssignedEventDto>> getAssignedEventsByAlgorithm(
                                         @RequestParam(name = "algorithmOption") String algorithmOption,
                                         @RequestParam(name = "useSorting") Boolean useSorting,
-                                        @RequestParam(name = "shuffle") Boolean shuffle) {
+                                        @RequestParam(name = "shuffle") Boolean shuffle,
+                                        @RequestParam(name = "usePartialCol") Boolean usePartialCol) {
         List<AssignedEventDto> assignedEventDtos = new ArrayList<>();
         try {
             assignedEventDtos = assignedEventService.getAssignedEventsByAlgorithm(
-                                            algorithmOption, useSorting, shuffle);
+                                            algorithmOption, useSorting, shuffle, usePartialCol);
         } catch (IOException e) {
             throw new UnableToReadTimetableFileException("Unable to read timetable file");
         }

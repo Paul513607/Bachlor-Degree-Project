@@ -1,18 +1,17 @@
 package org.timetable;
 
-import org.timetable.algorithm.IntervalRoomColoringAlgorithm;
-import org.timetable.algorithm.RoomOnlyColoringAlgorithm;
-import org.timetable.algorithm.partialcol.RoomBipartiteSolver;
-import org.timetable.algorithm.partialcol.TimeslotDataModel;
-import org.timetable.algorithm.partialcol.TimeslotColoringSolver;
-import org.timetable.algorithm.partialcol.model.RoomDataGraph;
-import org.timetable.algorithm.partialcol.model.RoomDataNode;
-import org.timetable.algorithm.partialcol.model.Timeslot;
-import org.timetable.algorithm.partialcol.model.TimeslotDataNode;
+import org.timetable.algorithm.interval_room_sim.IntervalRoomColoringAlgorithm;
+import org.timetable.algorithm.interval_then_room.datamodel.TimeslotDataModel;
+import org.timetable.algorithm.room_coloring.RoomOnlyColoringAlgorithm;
+import org.timetable.algorithm.interval_then_room.*;
+import org.timetable.algorithm.interval_then_room.model.RoomDataGraph;
+import org.timetable.algorithm.interval_then_room.model.RoomDataNode;
+import org.timetable.algorithm.interval_then_room.model.Timeslot;
+import org.timetable.algorithm.interval_then_room.model.TimeslotDataNode;
 import org.timetable.algorithm.wraps.ColorDayTimeWrap;
-import org.timetable.graph_generators.IntervalRoomColorGraphGenerator;
-import org.timetable.graph_generators.RoomColorGraphGenerator;
-import org.timetable.model.*;
+import org.timetable.algorithm.interval_room_sim.IntervalRoomColorGraphGenerator;
+import org.timetable.algorithm.room_coloring.RoomColorGraphGenerator;
+import org.timetable.generic_model.*;
 import org.timetable.pojo.*;
 import org.timetable.util.Parser;
 
@@ -20,7 +19,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Main {
     private static final String XML_FILEPATH = "src/main/resources/export_2022-2023_semestrul_1.xml";
@@ -102,31 +100,42 @@ public class Main {
     }
 
     public static Map<TimetableNode, ColorDayTimeWrap> intervalColoringTwoStepFilePath(
-            String xmlFilePath, int algorithmOption, boolean useSorting, boolean shuffle) {
+            String xmlFilePath, int algorithmOption, boolean useSorting, boolean shuffle, boolean usePartialCol) {
         Timetable timetable = loadTimetable(xmlFilePath);
-        return intervalColoringTwoStepAlgorithm(timetable, algorithmOption, useSorting, shuffle);
+        return intervalColoringTwoStepAlgorithm(timetable, algorithmOption, useSorting, shuffle, usePartialCol);
     }
 
     public static Map<TimetableNode, ColorDayTimeWrap> intervalColoringTwoStepFileContent(
-            byte[] xmlFileContent, int algorithmOption, boolean useSorting, boolean shuffle) {
+            byte[] xmlFileContent, int algorithmOption, boolean useSorting, boolean shuffle, boolean usePartialCol) {
         Timetable timetable = loadTimetable(xmlFileContent);
-        return intervalColoringTwoStepAlgorithm(timetable, algorithmOption, useSorting, shuffle);
+        return intervalColoringTwoStepAlgorithm(timetable, algorithmOption, useSorting, shuffle, usePartialCol);
     }
 
     private static Map<TimetableNode, ColorDayTimeWrap> intervalColoringTwoStepAlgorithm(
-            Timetable timetable, int algorithmOption, boolean useSorting, boolean shuffle) {
+            Timetable timetable, int algorithmOption, boolean useSorting, boolean shuffle, boolean usePartialCol) {
         Timetable newTimetable = modelTimetableData(timetable);
         TimeslotDataModel dataModel = new TimeslotDataModel(newTimetable);
         TimeslotColoringSolver coloringSolver = new TimeslotColoringSolver(dataModel);
         coloringSolver.solve(algorithmOption, useSorting, shuffle);
+        Map<Timeslot, Set<TimeslotDataNode>> solution = coloringSolver.getTimeslotToNodes();
+
+        if (usePartialCol) {
+            Set<TimeslotDataNode> uncoloredNodes = new HashSet<>(coloringSolver.getUncoloredNodes());
+            PartialColAlgorithm partialCol = new PartialColAlgorithm(dataModel, coloringSolver.getTimeslotToNodes(),
+                                    uncoloredNodes, coloringSolver.getGraph(), 1000);
+            partialCol.solve();
+            solution = partialCol.getBestSolution();
+        }
+
         Map<Timeslot, Map<TimeslotDataNode, RoomDataNode>> timeslotToSolution = new HashMap<>();
-        for (Timeslot timeslot : coloringSolver.getTimeslotToNodes().keySet()) {
-            Set<TimeslotDataNode> currentSet = coloringSolver.getTimeslotToNodes().get(timeslot);
+        for (Timeslot timeslot : solution.keySet()) {
+            Set<TimeslotDataNode> currentSet = solution.get(timeslot);
             RoomDataGraph graph = new RoomDataGraph(dataModel, currentSet);
             RoomBipartiteSolver bipartiteSolver = new RoomBipartiteSolver(graph);
             bipartiteSolver.hopcroftKarpSolver();
             timeslotToSolution.put(timeslot, bipartiteSolver.getEventPairs());
         }
+
         return getNodeToColorMap(timeslotToSolution);
     }
 
@@ -187,6 +196,7 @@ public class Main {
                      2. Interval room coloring - Greedy
                      3. Interval room coloring - DSatur
                      4. Interval coloring two step (Greedy + Hopcroft-Karp)
+                     5. Interval coloring two step modified DSatur
                      """);
         int algorithmOption = 0;
         try {
@@ -203,7 +213,9 @@ public class Main {
         } else if (algorithmOption == 3) {
             intervalRoomColoringFilePath(XML_FILEPATH, 2, false, false);
         } else if (algorithmOption == 4) {
-            intervalColoringTwoStepFilePath(XML_FILEPATH, 1, false, false);
+            intervalColoringTwoStepFilePath(XML_FILEPATH, 1, false, false, false);
+        } else if (algorithmOption == 5) {
+            intervalColoringTwoStepFilePath(XML_FILEPATH, 2, false, false, true);
         } else {
             System.out.println("Invalid input.");
         }

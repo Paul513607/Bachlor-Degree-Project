@@ -4,13 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.timetable.algorithm.wraps.ColorDayTimeWrap;
-import org.timetable.model.TimetableEdge;
-import org.timetable.model.TimetableGraph;
-import org.timetable.model.TimetableNode;
+import org.timetable.generic_model.TimetableEdge;
+import org.timetable.generic_model.TimetableGraph;
+import org.timetable.generic_model.TimetableNode;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Data

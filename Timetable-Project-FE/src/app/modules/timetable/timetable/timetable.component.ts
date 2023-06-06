@@ -49,6 +49,7 @@ export class TimetableComponent implements OnInit, OnDestroy {
   public selectedAlgorithmOption: string = '';
   public useSorting: boolean = false;
   public shuffleEvents: boolean = false;
+  public usePartialCol: boolean = false;
 
   public selectedStudentGroup: string = '';
   public selectedProfessor: string = '';
@@ -125,6 +126,7 @@ export class TimetableComponent implements OnInit, OnDestroy {
     this.selectedAlgorithmOption = algorithmData.algorithm;
     this.useSorting = algorithmData.useSorting;
     this.shuffleEvents = algorithmData.shuffleEvents;
+    this.usePartialCol = algorithmData.usePartialCol;
   }
 
   public onChangeStudentGroup(studentGroup: string): void {
@@ -172,10 +174,8 @@ export class TimetableComponent implements OnInit, OnDestroy {
     }
     this.isLoading = true;
 
-    console.log(this.selectedAlgorithmOption);
-    console.log(this.useSorting);
-    console.log(this.shuffleEvents);
-    this.timetableService.getAllAssignedEventsWithAlgorithm(this.selectedAlgorithmOption, this.useSorting, this.shuffleEvents)
+    this.timetableService.getAllAssignedEventsWithAlgorithm(this.selectedAlgorithmOption, 
+                                        this.useSorting, this.shuffleEvents, this.usePartialCol)
     .subscribe((assignedEvents: AssignedTimetableEvent[]) => {
       this.assignedEvents = assignedEvents;
       this.updateUnassignedEvents();

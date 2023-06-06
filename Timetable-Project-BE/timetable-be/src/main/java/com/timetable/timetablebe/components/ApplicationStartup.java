@@ -8,7 +8,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.timetable.algorithm.wraps.ColorDayTimeWrap;
-import org.timetable.model.TimetableNode;
+import org.timetable.generic_model.TimetableNode;
 import org.timetable.pojo.*;
 
 import java.io.File;

@@ -3,7 +3,7 @@ package org.timetable.algorithm.wraps;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.timetable.model.TimetableColorRoom;
+import org.timetable.generic_model.TimetableColorRoom;
 
 @Data
 @NoArgsConstructor

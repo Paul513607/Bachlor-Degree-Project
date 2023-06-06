@@ -16,7 +16,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.timetable.algorithm.wraps.ColorDayTimeWrap;
-import org.timetable.model.TimetableNode;
+import org.timetable.generic_model.TimetableNode;
 import org.timetable.pojo.Group;
 import org.timetable.pojo.Prof;
 
@@ -117,7 +117,7 @@ public class AssignedEventService {
     }
 
     public List<AssignedEventDto> getAssignedEventsByAlgorithm(String algorithmOption, Boolean useSorting,
-                                                               Boolean shuffle) throws IOException {
+                                                               Boolean shuffle, Boolean usePartialCol) throws IOException {
         List<AssignedEventEntity> assignedEvents;
         Map<TimetableNode, ColorDayTimeWrap> timetable;
 
@@ -158,7 +158,16 @@ public class AssignedEventService {
             case "4" -> {
                 timetable = intervalColoringTwoStepFileContent(
                         Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()),
-                                            1, useSorting, shuffle);
+                                            1, useSorting, shuffle, usePartialCol);
+                assignedEvents = mapAlgorithmResultsToEntities(timetable);
+
+                cachedAlgorithmOption = algorithmOption;
+                resetDatabase(assignedEvents);
+            }
+            case "5" -> {
+                timetable = intervalColoringTwoStepFileContent(
+                        Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()),
+                        2, useSorting, shuffle, usePartialCol);
                 assignedEvents = mapAlgorithmResultsToEntities(timetable);
 
                 cachedAlgorithmOption = algorithmOption;

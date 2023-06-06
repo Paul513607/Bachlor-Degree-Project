@@ -10,7 +10,8 @@ import { AssignedTimetableEvent } from '../model/assigned-timetable-event';
 export class TimetableService {
   constructor(private readonly _http: HttpClient) { }
 
-  public getAllAssignedEventsWithAlgorithm(algorithmOption?: string, useSorting?: boolean, shuffleEvents?: boolean): 
+  public getAllAssignedEventsWithAlgorithm(algorithmOption?: string, useSorting?: boolean, 
+                                           shuffleEvents?: boolean, usePartialCol?: boolean): 
                                                   Observable<AssignedTimetableEvent[]> {
     let url: string = `${environment.BASE_URL}:${environment.PORT}/api/assigned-events/algorithm`;
     if (algorithmOption) {
@@ -27,6 +28,11 @@ export class TimetableService {
       url += `&shuffle=${shuffleEvents.toString()}`;
     } else {
       url += `&shuffle=${false}`;
+    }
+    if (algorithmOption === '5' && usePartialCol) {
+      url += `&usePartialCol=${usePartialCol.toString()}`;
+    } else {
+      url += `&usePartialCol=${false}`;
     }
     
     return this._http.get(url)
