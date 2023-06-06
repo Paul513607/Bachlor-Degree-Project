@@ -35,11 +35,43 @@
                     </mat-select>
                 </mat-form-field>
             </div>
-            <div class="form-field">
-                <button type="button" mat-raised-button (click)="useSelectedFile()" class="file-submit-selected">
+            <div class="form-field file-submit-btn">
+                <button type="button" mat-raised-button (click)="useSelectedFile()" class="file-submit-selected" [disabled]="selectedFileName===''">
                     Use Selected File
                 </button>
             </div>
+        </div>
+        <div class="form-field">
+            <mat-expansion-panel>
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        Algorithm Parameters
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <div>
+                    <mat-form-field>
+                        <mat-label>Number of Days</mat-label>
+                        <input matInput type="number" [placeholder]="params.numberOfDays" [(ngModel)]="params.numberOfDays" name="params.numberOfDays">
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>Start Time of Day</mat-label>
+                        <input matInput type="string" [placeholder]="params.startTime" [(ngModel)]="params.startTime" name="params.startTime">
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>End Time of Day</mat-label>
+                        <input matInput type="string" [placeholder]="params.endTime" [(ngModel)]="params.endTime" name="params.endTime">
+                    </mat-form-field>
+                    <mat-form-field>
+                        <mat-label>General Duration (hours)</mat-label>
+                        <input matInput type="number" [placeholder]="params.generalDuration" [(ngModel)]="params.generalDuration" name="params.generalDuration">
+                    </mat-form-field>
+                    <button type="button" mat-raised-button (click)="updateParams()" class="file-submit-selected">
+                        Update Parameters
+                    </button>
+                    <div id="bad-params-input">Wrong data format!</div>
+                    <div id="successful-param-update">Parameters updated!</div>
+                </div>
+            </mat-expansion-panel>
         </div>
         <div id="timetable-file-change">
             Timetable File Changed!

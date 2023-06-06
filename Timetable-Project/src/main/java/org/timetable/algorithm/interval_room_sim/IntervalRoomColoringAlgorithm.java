@@ -201,9 +201,6 @@ public class IntervalRoomColoringAlgorithm extends TimetableColoringAlgorithm {
                 List<TimetableNode> tmpNodes = graph.getNodes().stream()
                         .filter(node1 -> node1.equals(node))
                         .toList();
-                if (tmpNodes.size() < 3) {
-                    // graph.getNodes().add(node);
-                }
                 continue;
             }
             nodeColorMap.put(node, new ColorDayTimeWrap(new TimetableColorRoom(bestFitColor.getResource()),

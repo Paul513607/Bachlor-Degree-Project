@@ -258,8 +258,12 @@ export class TimetableComponent implements OnInit, OnDestroy {
       return false;
     }
 
-    const assignedEventMinute: number = parseInt(assignedEvent.time.split(":")[0]);
-    if (assignedEventMinute === 30) {
+    const assignedEventMinute: number = parseInt(assignedEvent.time.split(":")[1]);
+    if (assignedEventMinute == null) {
+      return false;
+    }
+    
+    if (assignedEventMinute > 0) {
       return true;
     }
     return false;

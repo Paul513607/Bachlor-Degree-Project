@@ -1,6 +1,6 @@
 package org.timetable.algorithm.interval_room_sim;
 
-import org.timetable.algorithm.wraps.AlgorithmConstants;
+import org.timetable.util.AlgorithmConstants;
 import org.timetable.algorithm.GraphGenerator;
 import org.timetable.generic_model.*;
 import org.timetable.pojo.*;

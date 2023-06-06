@@ -13,11 +13,13 @@ import org.timetable.algorithm.interval_room_sim.IntervalRoomColorGraphGenerator
 import org.timetable.algorithm.room_coloring.RoomColorGraphGenerator;
 import org.timetable.generic_model.*;
 import org.timetable.pojo.*;
+import org.timetable.util.AlgorithmConstants;
 import org.timetable.util.Parser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.LocalTime;
 import java.util.*;
 
 public class Main {
@@ -183,6 +185,14 @@ public class Main {
             }
         }
         return nodeToColorMap;
+    }
+
+    public static void setAlgorithmConstants(int numberOfDays, LocalTime startTime, LocalTime endTime,
+                                             int generalDuration) {
+        AlgorithmConstants.NUMBER_OF_DAYS = numberOfDays;
+        AlgorithmConstants.START_TIME = startTime;
+        AlgorithmConstants.END_TIME = endTime;
+        AlgorithmConstants.GENERAL_DURATION = generalDuration;
     }
 
     public static void main(String[] args) {

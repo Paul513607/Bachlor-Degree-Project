@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.timetable.algorithm.TimetableColoringAlgorithm;
-import org.timetable.algorithm.wraps.AlgorithmConstants;
+import org.timetable.util.AlgorithmConstants;
 import org.timetable.algorithm.wraps.ColorDayTimeWrap;
 import org.timetable.algorithm.wraps.GroupDayTimeWrap;
 import org.timetable.generic_model.TimetableColorRoom;

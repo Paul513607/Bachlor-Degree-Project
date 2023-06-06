@@ -9,6 +9,7 @@ import org.timetable.algorithm.interval_then_room.model.Timeslot;
 import org.timetable.algorithm.interval_then_room.model.TimeslotDataNode;
 import org.timetable.pojo.Event;
 import org.timetable.pojo.Resource;
+import org.timetable.util.AlgorithmConstants;
 
 import java.util.HashMap;
 import java.util.List;
@@ -44,7 +45,7 @@ public class SoftConstraintsModel {
         this.solution = solutionTemp;
 
         studentTimeslotAttendanceMatrix = new int[model.getStudentGroups().size()][model.getTimeslots().size()];
-        studentOneDayAttendanceMatrix = new int[model.getStudentGroups().size()][TimeslotDataModel.DAYS_IN_WEEK - 1];
+        studentOneDayAttendanceMatrix = new int[model.getStudentGroups().size()][AlgorithmConstants.NUMBER_OF_DAYS];
 
         for (int i = 0; i < model.getStudentGroups().size(); i++) {
             for (int j = 0; j < model.getTimeslots().size(); j++) {
@@ -65,15 +66,12 @@ public class SoftConstraintsModel {
         }
 
         for (int i = 0; i < model.getStudentGroups().size(); i++) {
-            for (int j = 0; j < TimeslotDataModel.DAYS_IN_WEEK - 1; j++) {
+            for (int j = 0; j < AlgorithmConstants.NUMBER_OF_DAYS; j++) {
                 studentOneDayAttendanceMatrix[i][j] = 0;
             }
 
             for (int j = 0; j < model.getTimeslots().size(); j++) {
                 Timeslot timeslot = model.getTimeslots().get(j);
-                if (timeslot.getDay() == TimeslotDataModel.DAYS_IN_WEEK - 1) {
-                    continue;
-                }
                 if (!solution.containsKey(timeslot)) {
                     continue;
                 }

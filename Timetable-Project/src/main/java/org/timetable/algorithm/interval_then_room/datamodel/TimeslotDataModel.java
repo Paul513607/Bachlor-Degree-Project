@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import org.timetable.algorithm.interval_then_room.model.RoomFeature;
 import org.timetable.algorithm.interval_then_room.model.Timeslot;
 import org.timetable.pojo.*;
+import org.timetable.util.AlgorithmConstants;
 
 import java.time.LocalTime;
 import java.util.*;
@@ -12,12 +13,6 @@ import java.util.*;
 @Data
 @NoArgsConstructor
 public class TimeslotDataModel {
-    // These can be changed
-    public static int DAYS_IN_WEEK = 5;
-    public static LocalTime START_TIME = LocalTime.of(8, 0);
-    public static LocalTime END_TIME = LocalTime.of(20, 0);
-    public static int GENERAL_DURATION = 2;
-
     private static Map<String, String> shortenedTypeNames = Map.of(
             "curs", "C",
             "lab", "L",
@@ -70,10 +65,10 @@ public class TimeslotDataModel {
 
     private void populateTimeslots() {
         // populate timeslots
-        for (int day = 0; day < DAYS_IN_WEEK; day++) {
-            for (LocalTime startTime = START_TIME; startTime.isBefore(END_TIME);
-                 startTime = startTime.plusHours(GENERAL_DURATION)) {
-                LocalTime endTime = startTime.plusHours(GENERAL_DURATION);
+        for (int day = 0; day < AlgorithmConstants.NUMBER_OF_DAYS; day++) {
+            for (LocalTime startTime = AlgorithmConstants.START_TIME; startTime.isBefore(AlgorithmConstants.END_TIME);
+                 startTime = startTime.plusHours(AlgorithmConstants.GENERAL_DURATION)) {
+                LocalTime endTime = startTime.plusHours(AlgorithmConstants.GENERAL_DURATION);
                 timeslots.add(new Timeslot(day, startTime, endTime));
             }
         }

@@ -37,6 +37,10 @@ export class RowSpanCalculator {
 
                 if (assignedEvent.event != null && assignedEvent.time != null) {
                     spans[rowIdx][colIdx - 1] = {span: assignedEvent.event.duration};
+                    let minute = parseInt(assignedEvent.time.split(':')[1]);
+                    if (minute > 0) {
+                        spans[rowIdx][colIdx - 1].span += 1;
+                    }
                 } else {
                     spans[rowIdx][colIdx - 1] = {span: 1};
                 }

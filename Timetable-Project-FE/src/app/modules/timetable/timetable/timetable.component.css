@@ -78,6 +78,10 @@
     flex-direction: column;
 }
 
+.top-padding, .bottom-padding {
+    height: 50%;
+}
+
 .timetable-card {
     width: 100%;
     flex-grow: 1;

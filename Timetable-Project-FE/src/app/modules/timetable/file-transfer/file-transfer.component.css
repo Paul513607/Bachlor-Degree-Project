@@ -38,6 +38,10 @@
     flex-direction: row;
 }
 
+.file-submit-btn {
+    padding-bottom: 10px;
+}
+
 .file-select {
     border: 1px solid gray;
     width: 12em;
@@ -53,9 +57,26 @@
     color: white;
 }
 
+.delete-file-icon {
+    position: relative;
+}
+
+#hover-box-display {
+    display: none;
+    position: absolute;
+    color: rgba(255, 0, 0, 0.5);
+    margin-right: 20px;
+    z-index: 1;
+}
+
 .delete-file-icon:hover {
     background-color: rgba(255, 0, 0, 0.5);
 }
+
+.delete-file-icon:hover ~ span #hover-box-display {
+    display: block;
+}
+
 
 .file-option {
     font-size: 10px;
@@ -69,4 +90,14 @@
     color: green;
     font-size: 16px;
     display: none;
+}
+
+#bad-params-input {
+    display: none;
+    color: red;
+}
+
+#successful-param-update {
+    display: none;
+    color: green;
 }
