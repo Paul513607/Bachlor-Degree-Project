@@ -26,6 +26,8 @@ export class FileTransferComponent implements OnInit, OnDestroy {
 
   public timetableFileOkDiv: HTMLDivElement | null = null;
 
+  public isFileLoading: boolean = false;
+
   public params: any = {
     numberOfDays: "5",
     startTime: '08:00',
@@ -215,10 +217,13 @@ export class FileTransferComponent implements OnInit, OnDestroy {
       return;
     }
 
+    this.isFileLoading = true;
+
     this.timetableFileService.setFileAsDefault(this.selectedFileName)
     .subscribe((timetableFile: TimetableFile) => {
       console.log(`File ${timetableFile.name} has been set as default.`);
       window.location.reload();
+
       this.ngZone.run(() => {
         if (this.timetableFileOkDiv == null) {
           return;
@@ -231,6 +236,8 @@ export class FileTransferComponent implements OnInit, OnDestroy {
           }
 
           this.timetableFileOkDiv.style.display = 'none';
+
+          this.isFileLoading = false;
         }, 5000);
       });
     });

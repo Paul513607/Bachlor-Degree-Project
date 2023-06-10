@@ -17,8 +17,10 @@ import org.timetable.util.AlgorithmConstants;
 import org.timetable.util.Parser;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.time.LocalTime;
 import java.util.*;
 
@@ -193,6 +195,15 @@ public class Main {
         AlgorithmConstants.START_TIME = startTime;
         AlgorithmConstants.END_TIME = endTime;
         AlgorithmConstants.GENERAL_DURATION = generalDuration;
+    }
+
+    public byte[] getXmlData() {
+        File file = new File(XML_FILEPATH);
+        try {
+            return Files.readAllBytes(file.toPath());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static void main(String[] args) {

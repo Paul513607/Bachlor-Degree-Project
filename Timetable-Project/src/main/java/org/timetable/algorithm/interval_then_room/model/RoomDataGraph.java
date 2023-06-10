@@ -14,12 +14,12 @@ import java.util.Set;
 @AllArgsConstructor
 public class RoomDataGraph {
     // set 1 of the bipartite graph
-    List<TimeslotDataNode> timeslotEvents = new ArrayList<>();
+    private List<TimeslotDataNode> timeslotEvents = new ArrayList<>();
     // set 2 of the bipartite graph
-    List<RoomDataNode> rooms = new ArrayList<>();
-    public TimeslotDataModel timeslotDataModel;
+    private List<RoomDataNode> rooms = new ArrayList<>();
+    private  TimeslotDataModel timeslotDataModel;
 
-    List<RoomDataEdge> edges = new ArrayList<>();
+    private List<RoomDataEdge> edges = new ArrayList<>();
 
     public RoomDataGraph(TimeslotDataModel model, Set<TimeslotDataNode> timeslotEvents) {
         this.timeslotEvents = new ArrayList<>(timeslotEvents);

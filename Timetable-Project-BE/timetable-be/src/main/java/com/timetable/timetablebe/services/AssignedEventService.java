@@ -129,8 +129,7 @@ public class AssignedEventService {
 
         switch (algorithmOption) {
             case "1" -> {
-                timetable = roomOnlyColoringFileContent(
-                        Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()),
+                timetable = roomOnlyColoringFileContent(ApplicationStartup.XML_FILE_BYTES,
                                             1, useSorting, shuffle);
                 assignedEvents = mapAlgorithmResultsToEntities(timetable);
 
@@ -138,8 +137,7 @@ public class AssignedEventService {
                 resetDatabase(assignedEvents);
             }
             case "2" -> {
-                timetable = intervalRoomColoringFileContent(
-                        Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()),
+                timetable = intervalRoomColoringFileContent(ApplicationStartup.XML_FILE_BYTES,
                                             1, useSorting, shuffle);
                 assignedEvents = mapAlgorithmResultsToEntities(timetable);
 
@@ -147,8 +145,7 @@ public class AssignedEventService {
                 resetDatabase(assignedEvents);
             }
             case "3" -> {
-                timetable = intervalRoomColoringFileContent(
-                        Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()),
+                timetable = intervalRoomColoringFileContent(ApplicationStartup.XML_FILE_BYTES,
                                             2, useSorting, shuffle);
                 assignedEvents = mapAlgorithmResultsToEntities(timetable);
 
@@ -156,8 +153,7 @@ public class AssignedEventService {
                 resetDatabase(assignedEvents);
             }
             case "4" -> {
-                timetable = intervalColoringTwoStepFileContent(
-                        Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()),
+                timetable = intervalColoringTwoStepFileContent(ApplicationStartup.XML_FILE_BYTES,
                                             1, useSorting, shuffle, usePartialCol);
                 assignedEvents = mapAlgorithmResultsToEntities(timetable);
 
@@ -165,8 +161,7 @@ public class AssignedEventService {
                 resetDatabase(assignedEvents);
             }
             case "5" -> {
-                timetable = intervalColoringTwoStepFileContent(
-                        Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()),
+                timetable = intervalColoringTwoStepFileContent(ApplicationStartup.XML_FILE_BYTES,
                         2, useSorting, shuffle, usePartialCol);
                 assignedEvents = mapAlgorithmResultsToEntities(timetable);
 
@@ -182,7 +177,7 @@ public class AssignedEventService {
     private void regenerateTimetable() throws IOException {
         System.out.println("Generating timetable");
         Map<TimetableNode, ColorDayTimeWrap> timetable =
-                intervalRoomColoringFileContent(Files.readAllBytes(ApplicationStartup.XML_FILE.toPath()),
+                intervalRoomColoringFileContent(ApplicationStartup.XML_FILE_BYTES,
                                                 1, DEFAULT_USE_SORTING_VALUE, DEFAULT_SHUFFLE_VALUE);
         List<AssignedEventEntity> assignedEvents = mapAlgorithmResultsToEntities(timetable);
 

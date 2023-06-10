@@ -24,8 +24,7 @@ import static org.timetable.Main.loadTimetable;
 
 @Component
 public class ApplicationStartup implements ApplicationRunner, ApplicationStartupBase {
-    public static final String XML_FILEPATH = "src/main/resources/data/export_2022-2023_semestrul_1.xml";
-    public static File XML_FILE = new File(XML_FILEPATH);
+    public static byte[] XML_FILE_BYTES;
 
     @Autowired
     private AssignedEventRepository assignedEventRepo;
@@ -74,21 +73,21 @@ public class ApplicationStartup implements ApplicationRunner, ApplicationStartup
     }
 
     @Override
-    public void initializeDatabase() throws IOException {
+    public void initializeDatabase(boolean useDefaultFile) throws IOException {
+        if (timetableFileRepo == null) {
+            return;
+        }
         List<TimetableFileEntity> timetableFileEntities = timetableFileRepo.findAll();
 
         if (timetableFileEntities.isEmpty()) {
-            File file = new File(XML_FILEPATH);
-            TimetableFileEntity timetableFileEntity = new TimetableFileEntity();
-            timetableFileEntity.setFile(file);
-            timetableFileEntity.setName(file.getName());
-            timetableFileEntity.setTimestampAdded(System.currentTimeMillis());
-            timetableFileRepo.save(timetableFileEntity);
-
-            XML_FILE = file;
+            return;
         }
 
-        Timetable timetable = loadTimetable(Files.readAllBytes(XML_FILE.toPath()));
+        if (useDefaultFile) {
+            XML_FILE_BYTES = timetableFileEntities.get(0).getFile();
+        }
+
+        Timetable timetable = loadTimetable(XML_FILE_BYTES);
         assignedEventRepo.deleteAll();
         resourceRepo.deleteAll();
         studentGroupRepo.deleteAll();
@@ -179,6 +178,6 @@ public class ApplicationStartup implements ApplicationRunner, ApplicationStartup
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        initializeDatabase();
+        initializeDatabase(true);
     }
 }

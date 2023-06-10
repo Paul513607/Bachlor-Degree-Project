@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +32,7 @@ public class TimetableFileService {
     @Autowired
     private ModelMapper mapper;
 
-    public TimetableFileDto saveTimetableFile(MultipartFile multipartFile) {
+    public TimetableFileDto saveTimetableFile(MultipartFile multipartFile) throws IOException {
 
         String fileName;
         if (multipartFile.getOriginalFilename() == null) {
@@ -52,7 +53,7 @@ public class TimetableFileService {
         }
 
         TimetableFileEntity timetableFileEntity = new TimetableFileEntity();
-        timetableFileEntity.setFile(file);
+        timetableFileEntity.setFile(Files.readAllBytes(file.toPath()));
         timetableFileEntity.setName(fileName);
         timetableFileEntity.setTimestampAdded(System.currentTimeMillis());
 
@@ -81,16 +82,20 @@ public class TimetableFileService {
     }
 
     public TimetableFileDto setTimetableFile(String name) {
+        System.out.println("Setting timetable file to " + name);
         Optional<TimetableFileEntity> timetableFileEntity = timetableFileRepo.findByName(name);
+
+        System.out.println("Timetable file entity: " + timetableFileEntity.isPresent());
 
         if (timetableFileEntity.isEmpty()) {
             throw new TimetableFileNotFoundException("Timetable file with name " + name + " not found");
         }
 
-        ApplicationStartup.XML_FILE = timetableFileEntity.get().getFile();
+        ApplicationStartup.XML_FILE_BYTES = timetableFileEntity.get().getFile();
+
         AssignedEventService.cachedAlgorithmOption = "";
         try {
-            applicationStartup.initializeDatabase();
+            applicationStartup.initializeDatabase(false);
         } catch (IOException e) {
             throw new UnableToReadTimetableFileException("Unable to read timetable file " + name);
         }

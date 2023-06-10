@@ -13,6 +13,5 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TimetableFileDto {
-    private File file;
     private String fileName;
 }

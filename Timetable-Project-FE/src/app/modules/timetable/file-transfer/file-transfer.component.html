@@ -36,7 +36,7 @@
                 </mat-form-field>
             </div>
             <div class="form-field file-submit-btn">
-                <button type="button" mat-raised-button (click)="useSelectedFile()" class="file-submit-selected" [disabled]="selectedFileName===''">
+                <button type="button" mat-raised-button (click)="useSelectedFile()" class="file-submit-selected" [disabled]="selectedFileName==='' || isFileLoading">
                     Use Selected File
                 </button>
             </div>

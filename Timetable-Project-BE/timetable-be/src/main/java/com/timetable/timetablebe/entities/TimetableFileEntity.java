@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 
 import java.io.File;
 import java.time.LocalDateTime;
@@ -17,7 +18,8 @@ public class TimetableFileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private File file;
+    @Column(columnDefinition = "bytea")
+    private byte[] file;
     @Column(unique = true)
     private String name;
     private Long timestampAdded;
