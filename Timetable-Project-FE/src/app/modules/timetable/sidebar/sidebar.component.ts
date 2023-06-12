@@ -175,7 +175,7 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
           time: null
         });
       });
-      console.log(this.unassignedEventsDisplay.length);
+      // console.log(this.unassignedEventsDisplay.length);
     });
   }
 
@@ -235,6 +235,6 @@ export class SidebarComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   public onChangeStuff() {
-    console.log(this.selectedQueryOption);
+    // console.log(this.selectedQueryOption);
   }
 }

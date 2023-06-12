@@ -82,10 +82,7 @@ public class TimetableFileService {
     }
 
     public TimetableFileDto setTimetableFile(String name) {
-        System.out.println("Setting timetable file to " + name);
         Optional<TimetableFileEntity> timetableFileEntity = timetableFileRepo.findByName(name);
-
-        System.out.println("Timetable file entity: " + timetableFileEntity.isPresent());
 
         if (timetableFileEntity.isEmpty()) {
             throw new TimetableFileNotFoundException("Timetable file with name " + name + " not found");

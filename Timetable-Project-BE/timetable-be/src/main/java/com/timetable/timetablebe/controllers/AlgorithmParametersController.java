@@ -21,7 +21,6 @@ public class AlgorithmParametersController {
     @PutMapping
     public ResponseEntity<AlgorithmParametersDto> setAlgorithmParameters(
                                                     @RequestBody AlgorithmParametersDto algorithmParametersDto) {
-        System.out.println(algorithmParametersDto);
         return new ResponseEntity<>(algorithmParametersService.setAlgorithmParameters(algorithmParametersDto), null, HttpStatus.OK);
     }
 }

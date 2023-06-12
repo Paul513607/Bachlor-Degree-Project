@@ -158,14 +158,14 @@ export class FileTransferComponent implements OnInit, OnDestroy {
     this.timetableFileService.getAllFileNames()
     .subscribe((timetableFileNames: string[]) => {
       this.timetableFileNames = timetableFileNames;
-      console.log(this.timetableFileNames);
+      // console.log(this.timetableFileNames);
     });
   }
 
   public onSelectUploadFile(event: any): void {
     this.fileUpload = event.target.files[0] ?? null;
     
-    console.log(this.fileUpload);
+    // console.log(this.fileUpload);
     if (this.fileUpload == null) {
       return;
     }
@@ -176,7 +176,7 @@ export class FileTransferComponent implements OnInit, OnDestroy {
     const formData: FormData = new FormData();
     formData.append('file', file, fileName);
 
-    console.log(formData);
+    // console.log(formData);
 
     this.timetableFileService.uploadFile(formData)
     .subscribe((response: any) => {
@@ -205,7 +205,7 @@ export class FileTransferComponent implements OnInit, OnDestroy {
       let timetableFileId: number = id;
       this.timetableFileService.deleteFileById(timetableFileId)
       .subscribe(() => {
-        console.log(`File with id ${timetableFileId} has been deleted.`);
+        // console.log(`File with id ${timetableFileId} has been deleted.`);
 
         this.updateAllFileNames();
       });
@@ -221,7 +221,7 @@ export class FileTransferComponent implements OnInit, OnDestroy {
 
     this.timetableFileService.setFileAsDefault(this.selectedFileName)
     .subscribe((timetableFile: TimetableFile) => {
-      console.log(`File ${timetableFile.name} has been set as default.`);
+      // console.log(`File ${timetableFile.name} has been set as default.`);
       window.location.reload();
 
       this.ngZone.run(() => {

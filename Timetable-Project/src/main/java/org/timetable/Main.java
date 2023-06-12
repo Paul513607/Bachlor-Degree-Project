@@ -279,7 +279,7 @@ public class Main {
             System.out.println("Invalid input.");
         }
 
-        run30timesEachAndAverage();
+        // run30timesEachAndAverage();
     }
 
     private static Map<TimetableNode, ColorDayTimeWrap> runAlgorithmWithName(String name, boolean useSorting, boolean shuffle) {

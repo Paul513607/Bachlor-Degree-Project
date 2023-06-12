@@ -90,7 +90,7 @@ export class TimetableService {
     return this._http.post(url, assignedEvent)
     .pipe(
       map<any, void>(response => {
-        console.log(response);
+        // console.log(response);
         return response;
       })
     );
@@ -101,7 +101,7 @@ export class TimetableService {
     return this._http.put(url, assignedEvent)
     .pipe(
       map<any, void>(response => {
-        console.log(response);
+        // console.log(response);
         return response;
       })
     );
@@ -112,7 +112,7 @@ export class TimetableService {
     return this._http.post(url, assignedEvent)
     .pipe(
       map<any, number>(response => {
-        console.log(response);
+        // console.log(response);
         return response;
       })
     );
@@ -123,7 +123,7 @@ export class TimetableService {
     return this._http.delete(url)
     .pipe(
       map<any, void>(response => {
-        console.log(response);
+        // console.log(response);
         return response;
       })
     );

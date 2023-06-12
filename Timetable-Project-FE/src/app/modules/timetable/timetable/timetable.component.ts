@@ -100,7 +100,7 @@ export class TimetableComponent implements OnInit, OnDestroy {
     const rowSpanCalculator: RowSpanCalculator = new RowSpanCalculator();
     this.rowSpans = rowSpanCalculator.calculateSpans(this.timetableData, this.columnsToDisplay);
 
-    console.log(this.cellToColorMatrix);
+    // console.log(this.cellToColorMatrix);
     this.populateRooms();
   }
 
@@ -154,11 +154,11 @@ export class TimetableComponent implements OnInit, OnDestroy {
   }
 
   public onGenerateTimetable(): void {
-    console.log("Generating timetable...");
+    // console.log("Generating timetable...");
     if (this.selectedAlgorithmOption !== '') {
       this.getAssignedEventsByAlgorithmOption();
     }
-    console.log("Done generating");
+    // console.log("Done generating");
   }
 
   private updateUnassignedEvents(): void {
@@ -179,7 +179,7 @@ export class TimetableComponent implements OnInit, OnDestroy {
     .subscribe((assignedEvents: AssignedTimetableEvent[]) => {
       this.assignedEvents = assignedEvents;
       this.updateUnassignedEvents();
-      console.log(this.assignedEvents);
+      // console.log(this.assignedEvents);
       this.isLoading = false;
     });
   }
@@ -212,7 +212,7 @@ export class TimetableComponent implements OnInit, OnDestroy {
   }
 
   private addEventsToTimetableData(assignedEvents: AssignedTimetableEvent[]): void {
-    console.log(assignedEvents);
+    // console.log(assignedEvents);
     this.timetableData = [];
     this.cellToColorMatrix = [];
 
@@ -237,8 +237,8 @@ export class TimetableComponent implements OnInit, OnDestroy {
     this.rowSpans = [];
     const rowSpanCalculator = new RowSpanCalculator();
     this.rowSpans = rowSpanCalculator.calculateSpans(this.timetableData, this.columnsToDisplay);
-    console.log(this.rowSpans);
-    console.log(this.timetableData);
+    // console.log(this.rowSpans);
+    // console.log(this.timetableData);
   }
 
   public goToPreviousElement(timetableCard: any): void {
@@ -309,7 +309,7 @@ export class TimetableComponent implements OnInit, OnDestroy {
 
     this.availabilitySlotService.getAvailabilitySlotsByEvent(event)
     .subscribe((availabilitySlots: AvailabilitySlot[]) => {
-      console.log(availabilitySlots);
+      // console.log(availabilitySlots);
       this.currentEventAvailabilitySlots = availabilitySlots;
 
       for (let hour = this.START_TIME; hour < this.END_TIME; hour += 1) {
@@ -321,7 +321,7 @@ export class TimetableComponent implements OnInit, OnDestroy {
           }
 
           if (this.cellToColorMatrix[hour - this.START_TIME][dayIdx] === this.DEFAULT_CELL_COLOR) {
-            console.log(currentAvailabilitySlot);
+            // console.log(currentAvailabilitySlot);
             if (!currentAvailabilitySlot.available) {
               this.cellToColorMatrix[hour - this.START_TIME][dayIdx] = this.UNAVAILABLE_CELL_COLOR;
 
@@ -392,7 +392,7 @@ export class TimetableComponent implements OnInit, OnDestroy {
   }
 
   public assignEvent(newAssignedEvent: AssignedTimetableEvent): void {
-    console.log(newAssignedEvent);
+    // console.log(newAssignedEvent);
     if (this.currentAssignedEvent.resource == null) {
       this.timetableService.createAssignedEvent(newAssignedEvent)
       .subscribe(() => {

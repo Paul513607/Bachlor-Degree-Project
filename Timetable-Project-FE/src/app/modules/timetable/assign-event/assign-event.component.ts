@@ -66,7 +66,7 @@ export class AssignEventComponent implements OnInit, OnDestroy {
       } else {
         this.isRoomInvalid = true;
       }
-      console.log(this.isRoomInvalid);
+      // console.log(this.isRoomInvalid);
     }
     this.getTimeslotRooms.emit({day: this.selectedDay, hour: this.hour, minute: this.minute});
   }

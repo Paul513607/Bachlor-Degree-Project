@@ -27,7 +27,7 @@ export class TimetableFileService {
     return this._http.post(url, formData)
     .pipe(
       map<any, TimetableFile>(response => {
-        console.log(response);
+        // console.log(response);
         return response;
       })
     );

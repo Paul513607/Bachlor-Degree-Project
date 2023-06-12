@@ -23,7 +23,7 @@ export class AlgorithmParamsService {
   }
 
   public setAlgorithmParams(algorithmParams: AlgorithmParams): Observable<AlgorithmParams> {
-    console.log(algorithmParams);
+    // console.log(algorithmParams);
     let url: string = `${environment.BASE_URL}:${environment.PORT}/api/algorithm-parameters`;
 
     return this._http.put(url, algorithmParams)
