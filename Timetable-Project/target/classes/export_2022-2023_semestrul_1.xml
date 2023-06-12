@@ -994,7 +994,6 @@
     <event abbr="Sdsfum_I3Ea" actors="I3E1,I3E2,I3E3,I3E4,craciun_v" duration="2" frequency="1" group="dsfum" name="Dezvoltarea sistemelor fizice utilizand microprocesoare" notes="" type="S"/>
     <event abbr="Sdsfum_I3a" actors="I3A5,I3A6,I3B1,I3B2,craciun_v" duration="2" frequency="1" group="dsfum" name="Dezvoltarea sistemelor fizice utilizand microprocesoare" notes="" type="S"/>
     <event abbr="Sflaac_I2E1" actors="I2E1,captarencu" duration="2" frequency="1" group="flaac" name="Formal Languages, Automata and Compilers" notes="" type="S"/>
-    <event abbr="Sflaac_I2E2" actors="I2E2,captarencu" duration="2" frequency="1" group="flaac" name="Formal Languages, Automata and Compilers" notes="" type="S"/>
     <event abbr="Sflaac_I2E3" actors="I2E3,moruz" duration="2" frequency="1" group="flaac" name="Formal Languages, Automata and Compilers" notes="" type="S"/>
     <event abbr="Sflaac_I2E4" actors="I2E4,moruz" duration="2" frequency="1" group="flaac" name="Formal Languages, Automata and Compilers" notes="" type="S"/>
     <event abbr="Sga_I2E1" actors="I2E1,olariu_e" duration="2" frequency="1" group="ga" name="Graph algorithms" notes="" type="S"/>

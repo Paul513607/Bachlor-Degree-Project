@@ -1,0 +1,71 @@
+Algorithm name,Time,Unassigned events,Unassigned courses,Unassigned seminars/labs
+Room only coloring,9022,72,20,52
+Room only coloring,9061,77,24,53
+Room only coloring,8658,69,17,52
+Room only coloring,8509,69,17,52
+Room only coloring,8505,67,16,51
+Room only coloring,8988,71,20,51
+Room only coloring,8841,75,23,52
+Room only coloring,8484,72,19,53
+Room only coloring,9388,73,22,51
+Room only coloring,8989,72,20,52
+Interval room coloring - Greedy,386,15,7,8
+Interval room coloring - Greedy,420,14,9,5
+Interval room coloring - Greedy,386,20,11,9
+Interval room coloring - Greedy,458,16,10,6
+Interval room coloring - Greedy,389,16,6,10
+Interval room coloring - Greedy,366,16,8,8
+Interval room coloring - Greedy,383,15,7,8
+Interval room coloring - Greedy,389,17,9,8
+Interval room coloring - Greedy,430,16,7,9
+Interval room coloring - Greedy,392,15,8,7
+Interval room coloring - DSatur,591,32,19,13
+Interval room coloring - DSatur,631,30,17,13
+Interval room coloring - DSatur,583,30,18,12
+Interval room coloring - DSatur,608,33,19,14
+Interval room coloring - DSatur,568,32,17,15
+Interval room coloring - DSatur,556,30,18,12
+Interval room coloring - DSatur,553,31,19,12
+Interval room coloring - DSatur,579,30,17,13
+Interval room coloring - DSatur,627,29,16,13
+Interval room coloring - DSatur,601,31,18,13
+Interval coloring two step (Greedy + Hopcroft-Karp),133,75,20,55
+Interval coloring two step (Greedy + Hopcroft-Karp),162,75,20,55
+Interval coloring two step (Greedy + Hopcroft-Karp),136,75,25,50
+Interval coloring two step (Greedy + Hopcroft-Karp),129,73,20,53
+Interval coloring two step (Greedy + Hopcroft-Karp),125,78,21,57
+Interval coloring two step (Greedy + Hopcroft-Karp),129,74,17,57
+Interval coloring two step (Greedy + Hopcroft-Karp),131,73,19,54
+Interval coloring two step (Greedy + Hopcroft-Karp),141,73,20,53
+Interval coloring two step (Greedy + Hopcroft-Karp),144,74,23,51
+Interval coloring two step (Greedy + Hopcroft-Karp),131,77,19,58
+Interval coloring two step modified DSatur,844,12,12,0
+Interval coloring two step modified DSatur,901,11,10,1
+Interval coloring two step modified DSatur,841,19,15,4
+Interval coloring two step modified DSatur,825,15,14,1
+Interval coloring two step modified DSatur,803,16,15,1
+Interval coloring two step modified DSatur,795,18,16,2
+Interval coloring two step modified DSatur,815,15,14,1
+Interval coloring two step modified DSatur,825,17,15,2
+Interval coloring two step modified DSatur,862,20,18,2
+Interval coloring two step modified DSatur,859,14,13,1
+Interval coloring two step (Greedy + Hopcroft-Karp) + PartialCol,6336,59,19,40
+Interval coloring two step (Greedy + Hopcroft-Karp) + PartialCol,10877,58,17,41
+Interval coloring two step (Greedy + Hopcroft-Karp) + PartialCol,7982,63,15,48
+Interval coloring two step (Greedy + Hopcroft-Karp) + PartialCol,7321,65,21,44
+Interval coloring two step (Greedy + Hopcroft-Karp) + PartialCol,8639,67,13,54
+Interval coloring two step (Greedy + Hopcroft-Karp) + PartialCol,9162,64,17,47
+Interval coloring two step (Greedy + Hopcroft-Karp) + PartialCol,6129,62,18,44
+Interval coloring two step (Greedy + Hopcroft-Karp) + PartialCol,6769,58,18,40
+Interval coloring two step (Greedy + Hopcroft-Karp) + PartialCol,11701,45,14,31
+Interval coloring two step (Greedy + Hopcroft-Karp) + PartialCol,8068,70,24,46
+Interval coloring two step modified DSatur + PartialCol,4590,7,5,2
+Interval coloring two step modified DSatur + PartialCol,4605,9,6,3
+Interval coloring two step modified DSatur + PartialCol,4752,7,4,3
+Interval coloring two step modified DSatur + PartialCol,4948,8,5,3
+Interval coloring two step modified DSatur + PartialCol,4991,10,7,3
+Interval coloring two step modified DSatur + PartialCol,4645,9,6,3
+Interval coloring two step modified DSatur + PartialCol,4942,6,5,1
+Interval coloring two step modified DSatur + PartialCol,5214,12,10,2
+Interval coloring two step modified DSatur + PartialCol,4903,14,5,9
+Interval coloring two step modified DSatur + PartialCol,5042,6,3,3

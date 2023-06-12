@@ -42,7 +42,7 @@
                     Shuffle Events
                 </mat-checkbox>
             </div>
-            <div class="form-field" *ngIf="selectedAlgorithmOption.value === '5'">
+            <div class="form-field" *ngIf="selectedAlgorithmOption.value === '4' || selectedAlgorithmOption.value === '5'">
                 <mat-checkbox [(ngModel)]="usePartialCol" name="usePartialCol" (change)="onChangeUsePartialCol(usePartialCol)">
                     Use Partial Coloring Optimisation
                 </mat-checkbox>

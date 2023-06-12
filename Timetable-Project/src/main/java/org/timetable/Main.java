@@ -15,11 +15,9 @@ import org.timetable.generic_model.*;
 import org.timetable.pojo.*;
 import org.timetable.util.AlgorithmConstants;
 import org.timetable.util.Parser;
+import org.timetable.util.Timer;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.time.LocalTime;
 import java.util.*;
@@ -125,10 +123,11 @@ public class Main {
 
         if (usePartialCol) {
             Set<TimeslotDataNode> uncoloredNodes = new HashSet<>(coloringSolver.getUncoloredNodes());
-            PartialColAlgorithm partialCol = new PartialColAlgorithm(dataModel, coloringSolver.getTimeslotToNodes(),
+
+            PartialColAlgorithm partialCol = new PartialColAlgorithm(dataModel, solution,
                                     uncoloredNodes, coloringSolver.getGraph(), 1000);
             partialCol.solve();
-            solution = partialCol.getBestSolution();
+            solution = partialCol.getBestIterationSolution();
         }
 
         Map<Timeslot, Map<TimeslotDataNode, RoomDataNode>> timeslotToSolution = new HashMap<>();
@@ -197,6 +196,44 @@ public class Main {
         AlgorithmConstants.GENERAL_DURATION = generalDuration;
     }
 
+    private static void checkUnassignedEvents(Map<TimetableNode, ColorDayTimeWrap> solution, Timetable timetable) {
+        Set<Event> unassignedEventsSet = new HashSet<>();
+        for (Event event : timetable.getEvents()) {
+            if (event.getType().equals("C") || event.getType().equals("L") ||
+                    event.getType().equals("S")) {
+                unassignedEventsSet.add(event);
+            }
+        }
+        for (TimetableNode node : solution.keySet()) {
+            unassignedEventsSet.remove(node.getEvent());
+        }
+
+        System.out.println("Unassigned events: " + unassignedEventsSet.size());
+        System.out.println("Unassigned courses: " + unassignedEventsSet.stream()
+                .filter(e -> e.getType().equals("C")).count());
+        System.out.println("Unassigned seminars/labs: " + unassignedEventsSet.stream()
+                .filter(e -> e.getType().equals("L") || e.getType().equals("S")).count());
+    }
+
+    private static void checkUnassignedEvents(Map<TimetableNode, ColorDayTimeWrap> solution, Timetable timetable,
+                                             List<Long> unassignedEvents, List<Long> unassignedCourses,
+                                             List<Long> unassignedSeminarsLabs) {
+        Set<Event> unassignedEventsSet = new HashSet<>();
+        for (Event event : timetable.getEvents()) {
+            if (event.getType().equals("C") || event.getType().equals("L") ||
+                    event.getType().equals("S")) {
+                unassignedEventsSet.add(event);
+            }
+        }
+        for (TimetableNode node : solution.keySet()) {
+            unassignedEventsSet.remove(node.getEvent());
+        }
+
+        unassignedEvents.add((long) unassignedEventsSet.size());
+        unassignedCourses.add(unassignedEventsSet.stream().filter(e -> e.getType().equals("C")).count());
+        unassignedSeminarsLabs.add(unassignedEventsSet.stream().filter(e -> e.getType().equals("S") || e.getType().equals("L")).count());
+    }
+
     public byte[] getXmlData() {
         File file = new File(XML_FILEPATH);
         try {
@@ -227,18 +264,164 @@ public class Main {
             e.printStackTrace();
         }
 
+        Map<TimetableNode, ColorDayTimeWrap> solution = null;
         if (algorithmOption == 1) {
-            roomOnlyColoringFilePath(XML_FILEPATH, 1, false, false);
+            solution = roomOnlyColoringFilePath(XML_FILEPATH, 1, false, false);
         } else if (algorithmOption == 2) {
-            intervalRoomColoringFilePath(XML_FILEPATH, 1, false, false);
+            solution = intervalRoomColoringFilePath(XML_FILEPATH, 1, false, false);
         } else if (algorithmOption == 3) {
-            intervalRoomColoringFilePath(XML_FILEPATH, 2, false, false);
+            solution = intervalRoomColoringFilePath(XML_FILEPATH, 2, false, false);
         } else if (algorithmOption == 4) {
-            intervalColoringTwoStepFilePath(XML_FILEPATH, 1, false, false, false);
+            solution = intervalColoringTwoStepFilePath(XML_FILEPATH, 1, true, false, false);
+
+            Timetable timetable = loadTimetable(XML_FILEPATH);
+            timetable = modelTimetableData(timetable);
+            checkUnassignedEvents(solution, timetable);
         } else if (algorithmOption == 5) {
-            intervalColoringTwoStepFilePath(XML_FILEPATH, 2, false, false, true);
+            solution = intervalColoringTwoStepFilePath(XML_FILEPATH, 2, false, false, true);
         } else {
             System.out.println("Invalid input.");
+        }
+
+        // run30timesEachAndAverage();
+    }
+
+    private static Map<TimetableNode, ColorDayTimeWrap> runAlgorithmWithName(String name, boolean useSorting, boolean shuffle) {
+        return switch (name) {
+            case "Room only coloring" -> roomOnlyColoringFilePath(XML_FILEPATH, 1, useSorting, shuffle);
+            case "Interval room coloring - Greedy" ->
+                    intervalRoomColoringFilePath(XML_FILEPATH, 1, useSorting, shuffle);
+            case "Interval room coloring - DSatur" ->
+                    intervalRoomColoringFilePath(XML_FILEPATH, 2, useSorting, shuffle);
+            case "Interval coloring two step (Greedy + Hopcroft-Karp)" ->
+                    intervalColoringTwoStepFilePath(XML_FILEPATH, 1, useSorting, shuffle, false);
+            case "Interval coloring two step modified DSatur" ->
+                    intervalColoringTwoStepFilePath(XML_FILEPATH, 2, useSorting, shuffle, false);
+            case "Interval coloring two step (Greedy + Hopcroft-Karp) + PartialCol" ->
+                    intervalColoringTwoStepFilePath(XML_FILEPATH, 1, useSorting, shuffle, true);
+            case "Interval coloring two step modified DSatur + PartialCol" ->
+                    intervalColoringTwoStepFilePath(XML_FILEPATH, 2, useSorting, shuffle, true);
+            default -> null;
+        };
+    }
+
+    public static void run30timesEachAndAverage() {
+        Map<String, List<Long>> timeBenchmarks = new HashMap<>();
+        Map<String, List<Long>> unassignedEventsBenchmarks = new HashMap<>();
+        Map<String, List<Long>> unassignedCoursesBenchmarks = new HashMap<>();
+        Map<String, List<Long>> unassignedSeminarsLabsBenchmarks = new HashMap<>();
+
+        List<String> algorithmNames = new ArrayList<>();
+        algorithmNames.add("Room only coloring");
+        algorithmNames.add("Interval room coloring - Greedy");
+        algorithmNames.add("Interval room coloring - DSatur");
+        algorithmNames.add("Interval coloring two step (Greedy + Hopcroft-Karp)");
+        algorithmNames.add("Interval coloring two step modified DSatur");
+        algorithmNames.add("Interval coloring two step (Greedy + Hopcroft-Karp) + PartialCol");
+        algorithmNames.add("Interval coloring two step modified DSatur + PartialCol");
+
+        for (String algorithmName : algorithmNames) {
+            timeBenchmarks.put(algorithmName, new ArrayList<>());
+            unassignedEventsBenchmarks.put(algorithmName, new ArrayList<>());
+            unassignedCoursesBenchmarks.put(algorithmName, new ArrayList<>());
+            unassignedSeminarsLabsBenchmarks.put(algorithmName, new ArrayList<>());
+        }
+
+        Timetable timetable = loadTimetable(XML_FILEPATH);
+        timetable = modelTimetableData(timetable);
+        Timer timer = Timer.getInstance();
+        // 10 with useSorting = false and shuffle = false
+        for (int i = 0; i < 10; i++) {
+            System.out.println("Iteration: " + i);
+            for (String algorithmName : algorithmNames) {
+                timer.start();
+                Map<TimetableNode, ColorDayTimeWrap> solution = runAlgorithmWithName(algorithmName, false, false);
+                timer.end();
+
+                timeBenchmarks.get(algorithmName).add(timer.getDuration());
+
+                checkUnassignedEvents(solution, timetable, unassignedEventsBenchmarks.get(algorithmName),
+                                      unassignedCoursesBenchmarks.get(algorithmName),
+                                      unassignedSeminarsLabsBenchmarks.get(algorithmName));
+            }
+        }
+
+        // 10 with useSorting = true and shuffle = false
+        for (int i = 0; i < 10; i++) {
+            System.out.println("Iteration: " + i);
+            for (String algorithmName : algorithmNames) {
+                timer.start();
+                Map<TimetableNode, ColorDayTimeWrap> solution = runAlgorithmWithName(algorithmName, true, false);
+                timer.end();
+
+                timeBenchmarks.get(algorithmName).add(timer.getDuration());
+
+                checkUnassignedEvents(solution, timetable, unassignedEventsBenchmarks.get(algorithmName),
+                                      unassignedCoursesBenchmarks.get(algorithmName),
+                                      unassignedSeminarsLabsBenchmarks.get(algorithmName));
+            }
+        }
+
+        // 10 with useSorting = false and shuffle = true
+        for (int i = 0; i < 10; i++) {
+            System.out.println("Iteration: " + i);
+            for (String algorithmName : algorithmNames) {
+                timer.start();
+                Map<TimetableNode, ColorDayTimeWrap> solution = runAlgorithmWithName(algorithmName, false, true);
+                timer.end();
+
+                timeBenchmarks.get(algorithmName).add(timer.getDuration());
+
+                checkUnassignedEvents(solution, timetable, unassignedEventsBenchmarks.get(algorithmName),
+                                      unassignedCoursesBenchmarks.get(algorithmName),
+                                      unassignedSeminarsLabsBenchmarks.get(algorithmName));
+            }
+        }
+
+        // save results in 3 csv files
+        try (FileWriter fileWriter = new FileWriter("tt-no-params.csv")) {
+            fileWriter.append("Algorithm name,Time,Unassigned events,Unassigned courses,Unassigned seminars/labs\n");
+            for (String algorithmName : algorithmNames) {
+                for (int i = 0; i < 10; i++) {
+                    fileWriter.append(algorithmName).append(",");
+                    fileWriter.append(timeBenchmarks.get(algorithmName).get(i).toString()).append(",");
+                    fileWriter.append(unassignedEventsBenchmarks.get(algorithmName).get(i).toString()).append(",");
+                    fileWriter.append(unassignedCoursesBenchmarks.get(algorithmName).get(i).toString()).append(",");
+                    fileWriter.append(unassignedSeminarsLabsBenchmarks.get(algorithmName).get(i).toString()).append("\n");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (FileWriter fileWriter = new FileWriter("tt-use-sorting.csv")) {
+            fileWriter.append("Algorithm name,Time,Unassigned events,Unassigned courses,Unassigned seminars/labs\n");
+            for (String algorithmName : algorithmNames) {
+                for (int i = 10; i < 20; i++) {
+                    fileWriter.append(algorithmName).append(",");
+                    fileWriter.append(timeBenchmarks.get(algorithmName).get(i).toString()).append(",");
+                    fileWriter.append(unassignedEventsBenchmarks.get(algorithmName).get(i).toString()).append(",");
+                    fileWriter.append(unassignedCoursesBenchmarks.get(algorithmName).get(i).toString()).append(",");
+                    fileWriter.append(unassignedSeminarsLabsBenchmarks.get(algorithmName).get(i).toString()).append("\n");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try (FileWriter fileWriter = new FileWriter("tt-shuffle.csv")) {
+            fileWriter.append("Algorithm name,Time,Unassigned events,Unassigned courses,Unassigned seminars/labs\n");
+            for (String algorithmName : algorithmNames) {
+                for (int i = 20; i < 30; i++) {
+                    fileWriter.append(algorithmName).append(",");
+                    fileWriter.append(timeBenchmarks.get(algorithmName).get(i).toString()).append(",");
+                    fileWriter.append(unassignedEventsBenchmarks.get(algorithmName).get(i).toString()).append(",");
+                    fileWriter.append(unassignedCoursesBenchmarks.get(algorithmName).get(i).toString()).append(",");
+                    fileWriter.append(unassignedSeminarsLabsBenchmarks.get(algorithmName).get(i).toString()).append("\n");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }

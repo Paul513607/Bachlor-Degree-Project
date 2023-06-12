@@ -121,7 +121,7 @@ public class RoomOnlyColoringAlgorithm extends TimetableColoringAlgorithm {
                                          Set<TimetableColorRoom> availableColorsCourse,
                                          Set<Group> assignedGroups, List<TimetableNode> nodes) {
         for (TimetableNode node : nodes) {
-            if (node.isAssigned() || canExcludeEvent(node)) {
+            if (node.isAssigned() /* || canExcludeEvent(node) */) {
                 continue;
             }
             Set<Group> tmpGroups = new HashSet<>(assignedGroups);

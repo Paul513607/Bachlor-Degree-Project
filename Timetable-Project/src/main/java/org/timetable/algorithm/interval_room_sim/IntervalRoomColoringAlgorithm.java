@@ -93,9 +93,9 @@ public class IntervalRoomColoringAlgorithm extends TimetableColoringAlgorithm {
         Set<TimetableColorIntervalRoom> availableCourseColors = new HashSet<>(timetableCourseColors);
 
         for (TimetableNode node : graph.getNodes()) {
-            if (canExcludeEvent(node)) {
-                continue;
-            }
+            //if (canExcludeEvent(node)) {
+            //    continue;
+            //}
 
             Set<TimetableNode> neighbors = graph.getNeighbors(node);
 
@@ -159,9 +159,9 @@ public class IntervalRoomColoringAlgorithm extends TimetableColoringAlgorithm {
         while (!queue.isEmpty()) {
             TimetableNode node = queue.poll().getNode();
 
-            if (canExcludeEvent(node)) {
-                continue;
-            }
+            //if (canExcludeEvent(node)) {
+            //    continue;
+            //}
 
             Set<TimetableNode> neighbors = graph.getNeighbors(node);
 
