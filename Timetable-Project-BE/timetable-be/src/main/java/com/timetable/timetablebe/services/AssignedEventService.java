@@ -121,11 +121,15 @@ public class AssignedEventService {
         List<AssignedEventEntity> assignedEvents;
         Map<TimetableNode, ColorDayTimeWrap> timetable;
 
-        if (cachedAlgorithmOption.equals(algorithmOption) && cachedUseSortingValue == useSorting
-                && cachedShuffleValue == shuffle) {
-            assignedEvents = assignedEventRepo.findAll();
-            return mapEntityListToDtoList(assignedEvents);
+        if (!usePartialCol) {
+            if (cachedAlgorithmOption.equals(algorithmOption) && cachedUseSortingValue == useSorting
+                    && cachedShuffleValue == shuffle) {
+                assignedEvents = assignedEventRepo.findAll();
+                return mapEntityListToDtoList(assignedEvents);
+            }
         }
+        cachedUseSortingValue = useSorting;
+        cachedShuffleValue = shuffle;
 
         switch (algorithmOption) {
             case "1" -> {

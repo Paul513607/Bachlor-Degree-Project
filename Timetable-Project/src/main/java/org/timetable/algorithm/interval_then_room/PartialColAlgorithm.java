@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.timetable.algorithm.interval_then_room.datamodel.TimeslotDataModel;
 import org.timetable.algorithm.interval_then_room.model.*;
+import org.timetable.pojo.Event;
 import org.timetable.util.Pair;
 
 import java.util.*;
@@ -64,14 +65,14 @@ public class PartialColAlgorithm {
     public void solve() {
         Random random = new Random();
 
-        bestSolution = new HashMap<>(initialSolution);
-        bestUnplacedEvents = new HashSet<>(initialUnplacedEvents);
-        bestIterationSolution = new HashMap<>(initialSolution);
-        bestIterationUnplacedEvents = new HashSet<>(initialUnplacedEvents);
+        bestSolution = deepCopy(initialSolution);
+        bestUnplacedEvents = deepCopy(initialUnplacedEvents);
+        bestIterationSolution = deepCopy(initialSolution);
+        bestIterationUnplacedEvents = deepCopy(initialUnplacedEvents);
         for (int i = 0; i < maxIterations; i++) {
 
-            var currentSolution = new HashMap<>(bestIterationSolution);
-            var currentUnplacedEvents = new HashSet<>(bestIterationUnplacedEvents);
+            var currentSolution = deepCopy(bestIterationSolution);
+            var currentUnplacedEvents = deepCopy(bestIterationUnplacedEvents);
 
             Map<Pair<Integer, Integer>, Integer> moveDeltas = new HashMap<>();
             for (TimeslotDataNode event : currentUnplacedEvents) {
@@ -87,8 +88,8 @@ public class PartialColAlgorithm {
                     if (pair == null) {
                         continue;
                     }
-                    var neighborSolution = new HashMap<>(pair.getFirst());
-                    var neighborUnplacedEvents = new HashSet<>(pair.getSecond());
+                    var neighborSolution = deepCopy(pair.getFirst());
+                    var neighborUnplacedEvents = deepCopy(pair.getSecond());
 
                     int neighborCost = neighborUnplacedEvents.size();
                     int deltaCost = neighborCost - getCost(bestIterationUnplacedEvents);
@@ -125,13 +126,13 @@ public class PartialColAlgorithm {
 
                 var pair = performMove(event, timeslot, currentSolution, currentUnplacedEvents);
 
-                currentSolution = new HashMap<>(pair.getFirst());
-                currentUnplacedEvents = new HashSet<>(pair.getSecond());
+                currentSolution = deepCopy(pair.getFirst());
+                currentUnplacedEvents = deepCopy(pair.getSecond());
             }
 
             // accept move
-            bestIterationSolution = new HashMap<>(currentSolution);
-            bestIterationUnplacedEvents = new HashSet<>(currentUnplacedEvents);
+            bestIterationSolution = deepCopy(currentSolution);
+            bestIterationUnplacedEvents = deepCopy(currentUnplacedEvents);
 
             // update tabu matrix
             for (int j = 0; j < tabuMatrix.length; j++) {
@@ -144,8 +145,8 @@ public class PartialColAlgorithm {
 
             // update best solution
             if (getCost(bestIterationUnplacedEvents) < getCost(bestUnplacedEvents)) {
-                bestSolution = new HashMap<>(bestIterationSolution);
-                bestUnplacedEvents = new HashSet<>(bestIterationUnplacedEvents);
+                bestSolution = deepCopy(bestIterationSolution);
+                bestUnplacedEvents = deepCopy(bestIterationUnplacedEvents);
             }
         }
     }
@@ -158,13 +159,14 @@ public class PartialColAlgorithm {
                                                                 TimeslotDataNode event, Timeslot timeslot,
                                                                 Map<Timeslot, Set<TimeslotDataNode>> currentSolution,
                                                                 Set<TimeslotDataNode> currentUnplacedEvents) {
-        var neighborSolution = new HashMap<>(currentSolution);
-        var neighborUnplacedEvents = new HashSet<>(currentUnplacedEvents);
+        var neighborSolution = deepCopy(currentSolution);
+        var neighborUnplacedEvents = deepCopy(currentUnplacedEvents);
 
-        Set<TimeslotDataNode> currentEvents = new HashSet<>(neighborSolution.get(timeslot));
+        Set<TimeslotDataNode> currentEvents = deepCopy(neighborSolution.get(timeslot));
         Set<TimeslotDataNode> otherUnplacedEvents = new HashSet<>();
         neighborUnplacedEvents.remove(event);
         List<TimeslotDataNode> neighborEvents = timeslotDataGraph.getNeighbors(event);
+
         for (TimeslotDataNode neighborEvent : neighborEvents) {
             if (currentEvents.contains(neighborEvent)) {
                 otherUnplacedEvents.add(neighborEvent);
@@ -201,10 +203,10 @@ public class PartialColAlgorithm {
             TimeslotDataNode event, Timeslot timeslot,
             Map<Timeslot, Set<TimeslotDataNode>> currentSolution,
             Set<TimeslotDataNode> currentUnplacedEvents) {
-        var neighborSolution = new HashMap<>(currentSolution);
-        var neighborUnplacedEvents = new HashSet<>(currentUnplacedEvents);
+        var neighborSolution = deepCopy(currentSolution);
+        var neighborUnplacedEvents = deepCopy(currentUnplacedEvents);
 
-        Set<TimeslotDataNode> currentEvents = new HashSet<>(neighborSolution.get(timeslot));
+        Set<TimeslotDataNode> currentEvents = deepCopy(neighborSolution.get(timeslot));
         Set<TimeslotDataNode> otherUnplacedEvents = new HashSet<>();
         neighborUnplacedEvents.remove(event);
         List<TimeslotDataNode> neighborEvents = timeslotDataGraph.getNeighbors(event);
@@ -228,5 +230,21 @@ public class PartialColAlgorithm {
         Random random = new Random();
         int val = random.nextInt(10) + 1;
         tabuMatrix[indexOfEvent][indexOfTimeslot] = (int) (tabuValue * getCost(bestIterationUnplacedEvents)) + val;
+    }
+
+    private Map<Timeslot, Set<TimeslotDataNode>> deepCopy(Map<Timeslot, Set<TimeslotDataNode>> original) {
+        Map<Timeslot, Set<TimeslotDataNode>> copy = new HashMap<>();
+        for (Timeslot timeslot : original.keySet()) {
+            copy.put(timeslot, deepCopy(original.get(timeslot)));
+        }
+        return copy;
+    }
+
+    private Set<TimeslotDataNode> deepCopy(Set<TimeslotDataNode> original) {
+        Set<TimeslotDataNode> copy = new HashSet<>();
+        for (TimeslotDataNode event : original) {
+            copy.add(new TimeslotDataNode(event.getEvent()));
+        }
+        return copy;
     }
 }

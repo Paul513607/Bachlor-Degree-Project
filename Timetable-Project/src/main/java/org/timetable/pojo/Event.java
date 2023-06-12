@@ -47,6 +47,10 @@ public class Event {
         this.type = type;
     }
 
+    public Event(String abbr) {
+        this.abbr = abbr;
+    }
+
 
     public void setGroupList(Set<Group> groupSet) {
         groupList = new ArrayList<>(groupSet);

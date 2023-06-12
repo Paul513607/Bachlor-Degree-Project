@@ -273,17 +273,13 @@ public class Main {
             solution = intervalRoomColoringFilePath(XML_FILEPATH, 2, false, false);
         } else if (algorithmOption == 4) {
             solution = intervalColoringTwoStepFilePath(XML_FILEPATH, 1, true, false, false);
-
-            Timetable timetable = loadTimetable(XML_FILEPATH);
-            timetable = modelTimetableData(timetable);
-            checkUnassignedEvents(solution, timetable);
         } else if (algorithmOption == 5) {
             solution = intervalColoringTwoStepFilePath(XML_FILEPATH, 2, false, false, true);
         } else {
             System.out.println("Invalid input.");
         }
 
-        // run30timesEachAndAverage();
+        run30timesEachAndAverage();
     }
 
     private static Map<TimetableNode, ColorDayTimeWrap> runAlgorithmWithName(String name, boolean useSorting, boolean shuffle) {
