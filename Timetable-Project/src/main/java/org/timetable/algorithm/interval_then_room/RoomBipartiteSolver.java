@@ -22,7 +22,7 @@ public class RoomBipartiteSolver {
         levels = new int[graph.getTimeslotEvents().size() + 1];
     }
 
-    public void hopcroftKarpSolver() {
+    public int hopcroftKarpSolver() {
         for (TimeslotDataNode node : graph.getTimeslotEvents()) {
             eventPairs.put(node, null);
         }
@@ -41,6 +41,8 @@ public class RoomBipartiteSolver {
                 }
             }
         }
+
+        return matchingLength;
     }
 
     public boolean BFS() {

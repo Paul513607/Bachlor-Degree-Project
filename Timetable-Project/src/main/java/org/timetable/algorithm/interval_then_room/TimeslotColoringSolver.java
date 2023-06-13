@@ -31,11 +31,11 @@ public class TimeslotColoringSolver {
     }
 
     private void sortByDegrees(List<Integer> degrees) {
-        List<Integer> degreesCopy = new ArrayList<>(degrees);
+        List<Integer> degreesCopy = deepCopy(degrees);
 
         int size = graph.getNodes().size();
-        List<TimeslotDataNode> nodesSorted = new ArrayList<>(graph.getNodes());
-        int[][] adjacencyMatrixSorted = new int[size][size];
+        List<TimeslotDataNode> nodesSorted = deepCopy(graph.getNodes());
+        int[][] newAdjacencyMatrix = new int[size][size];
 
         boolean found;
         do {
@@ -44,23 +44,27 @@ public class TimeslotColoringSolver {
                 if (degreesCopy.get(i) < degreesCopy.get(i + 1)) {
                     Collections.swap(degreesCopy, i, i + 1);
                     Collections.swap(nodesSorted, i, i + 1);
+
                     found = true;
                 }
             }
         } while (found);
 
         for (int i = 0; i < size; i++) {
-            for (int j = 0; j < graph.getNodes().size(); j++) {
-                if (graph.getNodes().get(j).equals(nodesSorted.get(i))) {
-                    for (int k = 0; k < size; k++) {
-                        adjacencyMatrixSorted[i][k] = graph.getAdjacencyMatrix()[j][k];
-                    }
-                }
+            TimeslotDataNode node1 = graph.getNodes().get(i);
+            int indexInShuffle1 = nodesSorted.indexOf(node1);
+            for (int j = 0; j < size; j++) {
+                TimeslotDataNode node2 = graph.getNodes().get(j);
+                int indexInShuffle2 = nodesSorted.indexOf(node2);
+
+                newAdjacencyMatrix[indexInShuffle1][indexInShuffle2] = model.getConstraintMatrix()[i][j];
             }
         }
 
-        graph.setNodes(nodesSorted);
-        graph.setAdjacencyMatrix(adjacencyMatrixSorted);
+        model.setEvents(nodesSorted.stream().map(TimeslotDataNode::getEvent).toList());
+        graph.setNodes(deepCopy(nodesSorted));
+        model.setConstraintMatrix(newAdjacencyMatrix);
+        graph.setAdjacencyMatrix(newAdjacencyMatrix);
     }
 
     private void applyOptimisations(boolean useSorting, boolean shuffle) {
@@ -78,10 +82,35 @@ public class TimeslotColoringSolver {
             }
             sortByDegrees(degrees);
         } else if (shuffle) {
-            List<TimeslotDataNode> nodes = graph.getNodes();
-            Collections.shuffle(nodes);
-            graph.setNodes(nodes);
+            List<TimeslotDataNode> nodesShuffled = deepCopy(graph.getNodes());
+            Collections.shuffle(nodesShuffled);
+
+            int size = graph.getNodes().size();
+            int[][] newAdjacencyMatrix = new int[size][size];
+
+            for (int i = 0; i < size; i++) {
+                TimeslotDataNode node1 = graph.getNodes().get(i);
+                int indexInShuffle1 = nodesShuffled.indexOf(node1);
+                for (int j = 0; j < size; j++) {
+                    TimeslotDataNode node2 = graph.getNodes().get(j);
+                    int indexInShuffle2 = nodesShuffled.indexOf(node2);
+
+                    newAdjacencyMatrix[indexInShuffle1][indexInShuffle2] = model.getConstraintMatrix()[i][j];
+                }
+            }
+            model.setEvents(nodesShuffled.stream().map(TimeslotDataNode::getEvent).toList());
+            graph.setNodes(deepCopy(nodesShuffled));
+            model.setConstraintMatrix(newAdjacencyMatrix);
+            graph.setAdjacencyMatrix(newAdjacencyMatrix);
         }
+    }
+
+    private <T> List<T> deepCopy(List<T> otherList) {
+        List<T> newList = new ArrayList<>();
+        for (T item : otherList) {
+            newList.add(item);
+        }
+        return newList;
     }
 
     private void formatSolution() {
@@ -273,7 +302,7 @@ public class TimeslotColoringSolver {
     }
 
     private void solvemodifiedDSatur() {
-        int maxTries = 10000;
+        int maxTries = 2000;
         int tries = 0;
         List<TimeslotDataNode> unplacedEvents = new ArrayList<>(graph.getNodes());
         while (!unplacedEvents.isEmpty() && tries < maxTries) {

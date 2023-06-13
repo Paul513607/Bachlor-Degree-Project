@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.timetable.algorithm.interval_then_room.datamodel.TimeslotDataModel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,7 +32,7 @@ public class TimeslotDataGraph {
         }
 
         adjacencyMatrix = new int[nodes.size()][nodes.size()];
-        adjacencyMatrix = model.getConstraintMatrix();
+        adjacencyMatrix = Arrays.copyOf(model.getConstraintMatrix(), nodes.size());
     }
 
     public void addNode(TimeslotDataNode node) {
@@ -47,13 +48,23 @@ public class TimeslotDataGraph {
     }
 
     public List<TimeslotDataNode> getNeighbors(TimeslotDataNode node) {
-        List<TimeslotDataNode> neighbours = new ArrayList<>();
+        List<TimeslotDataNode> neighbors = new ArrayList<>();
         int indexOfNode = nodes.indexOf(node);
         for (int i = 0; i < adjacencyMatrix.length; i++) {
             if (adjacencyMatrix[indexOfNode][i] == 1) {
-                neighbours.add(nodes.get(i));
+                neighbors.add(nodes.get(i));
             }
         }
-        return neighbours;
+        return neighbors;
+    }
+
+    public List<TimeslotDataNode> getNeighbors_v2(TimeslotDataNode node) {
+        List<TimeslotDataNode> neighbors = new ArrayList<>();
+        for (TimeslotDataEdge edge : edges) {
+            if (edge.containsNode(node)) {
+                neighbors.add(edge.getNeighbor(node));
+            }
+        }
+        return neighbors;
     }
 }

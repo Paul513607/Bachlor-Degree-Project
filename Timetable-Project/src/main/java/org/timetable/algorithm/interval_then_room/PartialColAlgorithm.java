@@ -84,7 +84,8 @@ public class PartialColAlgorithm {
                         continue;
                     }
 
-                    var pair = exploreNeighbor(event, timeslot, currentSolution, currentUnplacedEvents);
+                    var pair =
+                            exploreNeighbor(event, timeslot, currentSolution, currentUnplacedEvents);
                     if (pair == null) {
                         continue;
                     }

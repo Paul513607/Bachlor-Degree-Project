@@ -234,6 +234,48 @@ public class Main {
         unassignedSeminarsLabs.add(unassignedEventsSet.stream().filter(e -> e.getType().equals("S") || e.getType().equals("L")).count());
     }
 
+    private static long checkNumberOfCollisions(Map<TimetableNode, ColorDayTimeWrap> solution) {
+        long numberOfCollisions = 0;
+        List<TimetableNode> list1 = new ArrayList<>(solution.keySet());
+        List<TimetableNode> list2 = new ArrayList<>(solution.keySet());
+        for (int i = 0; i < list1.size(); i++) {
+            TimetableNode node1 = list1.get(i);
+            for (int j = i + 1; j < list2.size(); j++) {
+                TimetableNode node2 = list2.get(j);
+
+                ColorDayTimeWrap wrap1 = solution.get(node1);
+                ColorDayTimeWrap wrap2 = solution.get(node2);
+
+                if (wrap1.getDay() == wrap2.getDay() && wrap1.getTime() == wrap2.getTime()) {
+                    if (wrap1.getColor().getResource().equals(wrap2.getColor().getResource())) {
+                        numberOfCollisions++;
+                        continue;
+                    }
+
+                    List<Group> studentGroupList1 = node1.getEvent().getGroupList();
+                    List<Group> studentGroupList2 = node2.getEvent().getGroupList();
+                    List<Group> intersection = new ArrayList<>(studentGroupList1);
+                    intersection.retainAll(studentGroupList2);
+
+                    if (!intersection.isEmpty()) {
+                        numberOfCollisions++;
+                        continue;
+                    }
+
+                    List<Prof> profList1 = node1.getEvent().getProfList();
+                    List<Prof> profList2 = node2.getEvent().getProfList();
+                    List<Prof> intersection2 = new ArrayList<>(profList1);
+                    intersection2.retainAll(profList2);
+
+                    if (!intersection2.isEmpty()) {
+                        numberOfCollisions++;
+                    }
+                }
+            }
+        }
+        return numberOfCollisions;
+    }
+
     public byte[] getXmlData() {
         File file = new File(XML_FILEPATH);
         try {
@@ -272,7 +314,7 @@ public class Main {
         } else if (algorithmOption == 3) {
             solution = intervalRoomColoringFilePath(XML_FILEPATH, 2, false, false);
         } else if (algorithmOption == 4) {
-            solution = intervalColoringTwoStepFilePath(XML_FILEPATH, 1, true, false, false);
+            solution = intervalColoringTwoStepFilePath(XML_FILEPATH, 1, false, false, false);
         } else if (algorithmOption == 5) {
             solution = intervalColoringTwoStepFilePath(XML_FILEPATH, 2, false, false, true);
         } else {
@@ -306,6 +348,7 @@ public class Main {
         Map<String, List<Long>> unassignedEventsBenchmarks = new HashMap<>();
         Map<String, List<Long>> unassignedCoursesBenchmarks = new HashMap<>();
         Map<String, List<Long>> unassignedSeminarsLabsBenchmarks = new HashMap<>();
+        Map<String, List<Long>> numberOfCollisionsBenchmarks = new HashMap<>();
 
         List<String> algorithmNames = new ArrayList<>();
         algorithmNames.add("Room only coloring");
@@ -321,6 +364,7 @@ public class Main {
             unassignedEventsBenchmarks.put(algorithmName, new ArrayList<>());
             unassignedCoursesBenchmarks.put(algorithmName, new ArrayList<>());
             unassignedSeminarsLabsBenchmarks.put(algorithmName, new ArrayList<>());
+            numberOfCollisionsBenchmarks.put(algorithmName, new ArrayList<>());
         }
 
         Timetable timetable = loadTimetable(XML_FILEPATH);
@@ -339,6 +383,7 @@ public class Main {
                 checkUnassignedEvents(solution, timetable, unassignedEventsBenchmarks.get(algorithmName),
                                       unassignedCoursesBenchmarks.get(algorithmName),
                                       unassignedSeminarsLabsBenchmarks.get(algorithmName));
+                numberOfCollisionsBenchmarks.get(algorithmName).add(checkNumberOfCollisions(solution));
             }
         }
 
@@ -355,6 +400,7 @@ public class Main {
                 checkUnassignedEvents(solution, timetable, unassignedEventsBenchmarks.get(algorithmName),
                                       unassignedCoursesBenchmarks.get(algorithmName),
                                       unassignedSeminarsLabsBenchmarks.get(algorithmName));
+                numberOfCollisionsBenchmarks.get(algorithmName).add(checkNumberOfCollisions(solution));
             }
         }
 
@@ -371,19 +417,21 @@ public class Main {
                 checkUnassignedEvents(solution, timetable, unassignedEventsBenchmarks.get(algorithmName),
                                       unassignedCoursesBenchmarks.get(algorithmName),
                                       unassignedSeminarsLabsBenchmarks.get(algorithmName));
+                numberOfCollisionsBenchmarks.get(algorithmName).add(checkNumberOfCollisions(solution));
             }
         }
 
         // save results in 3 csv files
         try (FileWriter fileWriter = new FileWriter("tt-no-params.csv")) {
-            fileWriter.append("Algorithm name,Time,Unassigned events,Unassigned courses,Unassigned seminars/labs\n");
+            fileWriter.append("Algorithm name,Time,Unassigned events,Unassigned courses,Unassigned seminars/labs, Number of collisions\n");
             for (String algorithmName : algorithmNames) {
                 for (int i = 0; i < 10; i++) {
                     fileWriter.append(algorithmName).append(",");
                     fileWriter.append(timeBenchmarks.get(algorithmName).get(i).toString()).append(",");
                     fileWriter.append(unassignedEventsBenchmarks.get(algorithmName).get(i).toString()).append(",");
                     fileWriter.append(unassignedCoursesBenchmarks.get(algorithmName).get(i).toString()).append(",");
-                    fileWriter.append(unassignedSeminarsLabsBenchmarks.get(algorithmName).get(i).toString()).append("\n");
+                    fileWriter.append(unassignedSeminarsLabsBenchmarks.get(algorithmName).get(i).toString()).append(",");
+                    fileWriter.append(numberOfCollisionsBenchmarks.get(algorithmName).get(i).toString()).append("\n");
                 }
             }
         } catch (IOException e) {
@@ -391,14 +439,15 @@ public class Main {
         }
 
         try (FileWriter fileWriter = new FileWriter("tt-use-sorting.csv")) {
-            fileWriter.append("Algorithm name,Time,Unassigned events,Unassigned courses,Unassigned seminars/labs\n");
+            fileWriter.append("Algorithm name,Time,Unassigned events,Unassigned courses,Unassigned seminars/labs,Number of collisions\n");
             for (String algorithmName : algorithmNames) {
                 for (int i = 10; i < 20; i++) {
                     fileWriter.append(algorithmName).append(",");
                     fileWriter.append(timeBenchmarks.get(algorithmName).get(i).toString()).append(",");
                     fileWriter.append(unassignedEventsBenchmarks.get(algorithmName).get(i).toString()).append(",");
                     fileWriter.append(unassignedCoursesBenchmarks.get(algorithmName).get(i).toString()).append(",");
-                    fileWriter.append(unassignedSeminarsLabsBenchmarks.get(algorithmName).get(i).toString()).append("\n");
+                    fileWriter.append(unassignedSeminarsLabsBenchmarks.get(algorithmName).get(i).toString()).append(",");
+                    fileWriter.append(numberOfCollisionsBenchmarks.get(algorithmName).get(i).toString()).append("\n");
                 }
             }
         } catch (IOException e) {
@@ -406,14 +455,15 @@ public class Main {
         }
 
         try (FileWriter fileWriter = new FileWriter("tt-shuffle.csv")) {
-            fileWriter.append("Algorithm name,Time,Unassigned events,Unassigned courses,Unassigned seminars/labs\n");
+            fileWriter.append("Algorithm name,Time,Unassigned events,Unassigned courses,Unassigned seminars/labs, Number of collisions\n");
             for (String algorithmName : algorithmNames) {
                 for (int i = 20; i < 30; i++) {
                     fileWriter.append(algorithmName).append(",");
                     fileWriter.append(timeBenchmarks.get(algorithmName).get(i).toString()).append(",");
                     fileWriter.append(unassignedEventsBenchmarks.get(algorithmName).get(i).toString()).append(",");
                     fileWriter.append(unassignedCoursesBenchmarks.get(algorithmName).get(i).toString()).append(",");
-                    fileWriter.append(unassignedSeminarsLabsBenchmarks.get(algorithmName).get(i).toString()).append("\n");
+                    fileWriter.append(unassignedSeminarsLabsBenchmarks.get(algorithmName).get(i).toString()).append(",");
+                    fileWriter.append(numberOfCollisionsBenchmarks.get(algorithmName).get(i).toString()).append("\n");
                 }
             }
         } catch (IOException e) {
